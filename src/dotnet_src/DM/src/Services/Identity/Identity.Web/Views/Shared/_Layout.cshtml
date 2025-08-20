@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+    var isAuth = Context.User?.Identity?.IsAuthenticated ?? false;
+    var name = isAuth ? Context.User.Identity!.Name : "Гость";
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>MVC Client</title>
+    <meta name="viewport" content="width=device-width" />
+    @* <link rel="stylesheet" *@
+    @*       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" /> *@
+</head>
+<body>
+<header class="container">
+    <nav>
+        <ul>
+            <li><strong>MVC Client</strong></li>
+        </ul>
+        <ul>
+            <li>@name</li>
+            @if (isAuth)
+            {
+                <li>
+                    <form method="post" action="/auth/logout">
+                        <button type="submit">Выйти</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </nav>
+</header>
+<main class="container">
+    @RenderBody()
+</main>
+</body>
+</html>
