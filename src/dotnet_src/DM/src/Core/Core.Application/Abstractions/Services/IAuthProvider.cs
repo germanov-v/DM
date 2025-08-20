@@ -1,6 +1,6 @@
 using Core.Application.Models.Identity;
 
-namespace Core.Application.Contracts.Services;
+namespace Core.Application.Abstractions.Services;
 
 public interface IAuthProvider
 {
