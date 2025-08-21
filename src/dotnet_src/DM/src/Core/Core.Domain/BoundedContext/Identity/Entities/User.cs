@@ -6,7 +6,7 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 
 public class User : IEntity
 {
-    public Id Id { get; private set; }
+    public IdGuid IdGuid { get; private set; }
     
     public string Email { get; private set; }
     
