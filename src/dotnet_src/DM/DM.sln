@@ -70,6 +70,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10BA-46F1-AC1F-78E123304A60}"
 	ProjectSection(SolutionItems) = preProject
 		docs\net\inline-jit.md = docs\net\inline-jit.md
+		docs\net\XOR.md = docs\net\XOR.md
 	EndProjectSection
 EndProject
 Global
