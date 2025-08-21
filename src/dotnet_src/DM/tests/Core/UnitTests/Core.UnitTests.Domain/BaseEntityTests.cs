@@ -1,4 +1,5 @@
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.ValueObjects;
 using Xunit.Abstractions;
 

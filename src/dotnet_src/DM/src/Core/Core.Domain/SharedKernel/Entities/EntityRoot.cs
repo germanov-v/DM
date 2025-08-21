@@ -1,6 +1,7 @@
+using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Exceptions;
 
-namespace Core.Domain.SharedKernel.Abstractions;
+namespace Core.Domain.SharedKernel.Entities;
 
 public abstract class EntityRoot<TKey> : IEntity
 {
