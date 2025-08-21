@@ -16,6 +16,7 @@ public class EventBroker
                await  subscriber.HandleEventAsync(@event);
             }
         }
-        
+
+        return true;
     }
 }

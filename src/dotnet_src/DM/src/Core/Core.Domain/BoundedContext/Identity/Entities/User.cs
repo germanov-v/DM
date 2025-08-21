@@ -30,10 +30,10 @@ public class User : IEntity
     {
          
     }
-    public DateTimeOffset CreatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
-    public DateTimeOffset UpdatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
-
-    public ICollection<Role> Roles { get; set; } = new List<Role>();
+    // public DateTimeOffset CreatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
+    // public DateTimeOffset UpdatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
+    //
+    // public ICollection<Role> Roles { get; set; } = new List<Role>();
 
 
     public bool BlockedStatus { get; set; }
