@@ -57,6 +57,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ddd", "ddd", "{0C8ACDC2-CF8
 		docs\ddd\db-context-uow.md = docs\ddd\db-context-uow.md
 		docs\ddd\!!!_change_tracker.md = docs\ddd\!!!_change_tracker.md
 		docs\ddd\todo.md = docs\ddd\todo.md
+		docs\ddd\normal-ChangeTracker.md = docs\ddd\normal-ChangeTracker.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EE18F492-0190-4509-96FC-20C27AF41819}"
@@ -72,6 +73,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\inline-jit.md = docs\net\inline-jit.md
 		docs\net\XOR.md = docs\net\XOR.md
 		docs\net\Continuation.md = docs\net\Continuation.md
+		docs\net\Optimization.md = docs\net\Optimization.md
 	EndProjectSection
 EndProject
 Global

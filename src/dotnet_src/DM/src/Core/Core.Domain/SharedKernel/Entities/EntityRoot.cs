@@ -1,10 +1,11 @@
 using System.Runtime.CompilerServices;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Exceptions;
+using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.Entities;
 
-public abstract class EntityRoot<TKey> : IEntity
+public abstract class EntityRoot<TKey> : IEntity 
 {
     private TKey _id = default!;
     

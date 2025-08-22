@@ -1,12 +1,13 @@
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Domain.BoundedContext.Identity.Entities;
 
-public class User : IEntity
+public class User : EntityRoot<IdGuid>
 {
-    public IdGuid IdGuid { get; private set; }
+   // public IdGuid IdGuid { get; private set; }
     
     public string Email { get; private set; }
     

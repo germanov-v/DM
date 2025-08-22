@@ -1,6 +1,8 @@
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
+using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.ValueObjects;
+using Core.Domain.SharedKernel.ValueObjects.Base;
 using Xunit.Abstractions;
 
 namespace Core.UnitTests.Domain;
@@ -20,7 +22,7 @@ public class BaseEntityTests
     }
 
     [Fact]
-    public void NameOfTests_ShouldReturnChildType()
+    public void NameOfTypesException_ShouldReturnChildType()
     {
         var entity = new EntityTest();
 
@@ -33,5 +35,19 @@ public class BaseEntityTests
         
         _output.WriteLine(ex.Message);
         
+    }
+
+
+    class GenericGuid : EntityRoot<IdGuid>
+    {
+        
+    }
+    
+    [Fact]
+    public void GenericCastIdToGuidId_ShouldNotThrow()
+    {
+        var tracker = new ChangeTracker();
+        var guidEntity = new GenericGuid();
+        tracker.Track(guidEntity);
     }
 }

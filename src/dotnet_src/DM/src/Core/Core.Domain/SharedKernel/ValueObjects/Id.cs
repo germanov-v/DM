@@ -1,8 +1,9 @@
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class Id: IValueObject, IEquatable<Id>
+public class Id: IValueObject, IEquatable<Id>,IId
 {
 
     private long _id;

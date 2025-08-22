@@ -1,8 +1,9 @@
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class IdGuid : IValueObject, IEquatable<IdGuid>
+public class IdGuid : IId, IValueObject, IEquatable<IdGuid>
 {
     private readonly long _longValue;
     
