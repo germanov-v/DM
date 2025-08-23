@@ -207,3 +207,40 @@ public interface IDomainEvent<out TAggregate, out TSelf>
 ```
 
 и маппить по `typeof(TSelf)`; но на практике пара `(AggregateType, EventType)` уже даёт отличную развязку.
+
+
+
+Еще правки:
+
+```csharp
+public sealed class ChangeTracker
+{
+    private readonly ConcurrentDictionary<IEntity, WeakReference<IEntity>> _entities =
+        new(ReferenceEqualityComparer.Instance);
+
+    public void Track(IEntity entity)
+        => _entities.TryAdd(entity, new WeakReference<IEntity>(entity));
+
+    public async ValueTask FlushAsync(DomainEventBus bus, CancellationToken ct = default)
+    {
+        foreach (var (key, weak) in _entities.ToArray())
+        {
+            if (!weak.TryGetTarget(out var entity))
+            {
+                _entities.TryRemove(key, out _);
+                continue;
+            }
+
+            // надёжно «вычерпываем» все события, включая добавленные обработчиками
+            while (true)
+            {
+                var batch = entity.DequeueDomainEvents(); // ← сделай такой метод у агрегата
+                if (batch.Count == 0) break;
+
+                foreach (var ev in batch)
+                    await bus.PublishAsync(entity, ev, ct).ConfigureAwait(false);
+            }
+        }
+    }
+}
+```

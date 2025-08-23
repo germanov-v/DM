@@ -1,11 +1,9 @@
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.ValueObjects;
-using Core.Domain.SharedKernel.ValueObjects.Base;
 using Xunit.Abstractions;
 
-namespace Core.UnitTests.Domain;
+namespace Core.UnitTests.Domain.Types;
 
 public class BaseEntityTests
 {

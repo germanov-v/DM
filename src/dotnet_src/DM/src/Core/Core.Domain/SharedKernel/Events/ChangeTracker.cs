@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.ValueObjects;
 using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.Events;
+
+
+
 
 public class ChangeTracker : IChangeTracker
 {
@@ -15,6 +19,11 @@ public class ChangeTracker : IChangeTracker
     
     public void Track(EntityRoot<IId> entity)
     {
+        var set = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+     
+        
+            //  ReferenceEqualityComparer.Instance
         _entities.Add(entity);
     }
 }

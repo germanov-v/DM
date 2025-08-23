@@ -74,6 +74,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\XOR.md = docs\net\XOR.md
 		docs\net\Continuation.md = docs\net\Continuation.md
 		docs\net\Optimization.md = docs\net\Optimization.md
+		docs\net\RuntimeTypeHandle.md = docs\net\RuntimeTypeHandle.md
+		docs\net\StaticClosuer.md = docs\net\StaticClosuer.md
 	EndProjectSection
 EndProject
 Global
