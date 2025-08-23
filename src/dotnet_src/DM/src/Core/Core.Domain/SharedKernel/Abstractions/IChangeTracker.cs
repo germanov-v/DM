@@ -6,10 +6,12 @@ namespace Core.Domain.SharedKernel.Abstractions;
 
 public interface IChangeTracker
 {
-    IEnumerable<EntityRoot<IId>> TrackedEntities { get; }
+  //  IEnumerable<EntityRoot<IId>> TrackedEntities { get; }
+    bool TryGetFirst(out IEntity? entity);
     
-    
-    void Track(EntityRoot<IId> entity);
+    void Track(IEntity entity);
+
+    IEnumerable<IEntity> GetAllAndClear();
 }
 
 public interface IChangeTrackerV2
