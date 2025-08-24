@@ -1,8 +1,6 @@
 using Core.Domain.SharedKernel.Entities;
-using Core.Domain.SharedKernel.ValueObjects;
-using Core.Domain.SharedKernel.ValueObjects.Base;
 
-namespace Core.Domain.SharedKernel.Abstractions;
+namespace Core.Domain.SharedKernel.Events;
 
 public interface IChangeTracker
 {

@@ -8,6 +8,7 @@ using Core.Domain.SharedKernel.Entities;
 namespace Core.Domain.SharedKernel.Events;
 
 
+[Obsolete("Проблема в том, что мы должны в Subscribe передать уже созданный экземпляр хэндлера")]
 public sealed class LocalEventBus
 {
     

@@ -60,6 +60,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ddd", "ddd", "{0C8ACDC2-CF8
 		docs\ddd\normal-ChangeTracker.md = docs\ddd\normal-ChangeTracker.md
 		docs\ddd\service-provider-event-bus.md = docs\ddd\service-provider-event-bus.md
 		docs\ddd\event-bus-DI.md = docs\ddd\event-bus-DI.md
+		docs\ddd\register-EVENTS-DI.md = docs\ddd\register-EVENTS-DI.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EE18F492-0190-4509-96FC-20C27AF41819}"
