@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="BoundedContext\Identity\Services\" />
+      <Folder Include="BoundedContext\Notifications\EventHandlers\" />
     </ItemGroup>
 
 </Project>

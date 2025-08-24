@@ -8,3 +8,4 @@ public interface IEventHandler<in TEntity, in TEvent>
 {
     ValueTask Handle(TEntity entity, TEvent @event, CancellationToken cancellationToken);
 }
+

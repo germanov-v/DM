@@ -9,8 +9,12 @@
     <ItemGroup>
       <Folder Include="Abstractions\Repositories\" />
       <Folder Include="Dto\" />
-      <Folder Include="Handlers\" />
       <Folder Include="Options\" />
+      <Folder Include="Services\Notifications\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core.Domain\Core.Domain.csproj" />
     </ItemGroup>
 
 </Project>
