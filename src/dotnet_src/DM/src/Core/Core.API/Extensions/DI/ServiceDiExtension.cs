@@ -1,5 +1,7 @@
 using System.Reflection;
+using Core.Application.Abstractions;
 using Core.Application.Services.Identity;
+using Core.Application.SharedServices;
 using Core.Domain.SharedKernel.Abstractions;
 
 namespace Core.API.Extensions.DI;
@@ -48,9 +50,12 @@ public static class ServiceDiExtension
         serviceCollection.AddHttpContextAccessor();
 
      
+        
         // serviceCollection.AddScoped<IdentityDbSeed>();
         // serviceCollection.AddScoped<BlogPostDbSeed>();
         // serviceCollection.AddScoped<ReferenceSourceService>();
+
+        serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
         return serviceCollection;
     }
 }

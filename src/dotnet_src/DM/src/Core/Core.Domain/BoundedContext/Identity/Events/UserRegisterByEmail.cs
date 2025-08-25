@@ -5,10 +5,10 @@ namespace Core.Domain.BoundedContext.Identity.Events;
 
 public class UserRegisterByEmail : IEvent<User>
 {
-    public UserRegisterByEmail(DateTimeOffset occuredOn)
+    public UserRegisterByEmail()
     {
-        OccuredOn = occuredOn;
+     
     }
 
-    public DateTimeOffset OccuredOn { get; }
+    public DateTimeOffset OccuredOn { get; } = DateTimeOffset.UtcNow;
 }

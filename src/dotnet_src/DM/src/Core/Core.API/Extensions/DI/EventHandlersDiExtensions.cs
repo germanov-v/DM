@@ -2,6 +2,7 @@ using System.Reflection;
 using Core.Application.EventHandlers;
 using Core.Application.EventHandlers.Notifications;
 using Core.Application.Services.Identity;
+using Core.Application.SharedServices;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Events;
 using Core.Domain.SharedKernel.Events;
@@ -11,13 +12,13 @@ namespace Core.API.Extensions.DI;
 
 public static class EventHandlersDiExtensions
 {
-    public static IServiceCollection AddEventHandlers(this IServiceCollection services,
-          params Assembly[] assemblies
+    public static IServiceCollection AddEventHandlers(this IServiceCollection services
+       // ,params Assembly[] assemblies
         )
     {
-        // var assemblies = new Assembly[] {
-        //     typeof(EventBus).Assembly,
-        // };
+        var assemblies = new Assembly[] {
+            typeof(UnitOfWork).Assembly,
+        };
 
         
         
@@ -72,7 +73,7 @@ public static class EventHandlersDiExtensions
         var handlerRegistry = new HandlerRegistry(dictionary);
         services.AddSingleton(handlerRegistry);
         services.AddScoped<HandlerProvider>();
-     
+        services.AddScoped<IChangeTracker, ChangeTracker>();
         return services;
     }
 

@@ -1,3 +1,4 @@
+using Core.Domain.BoundedContext.Identity.Events;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
@@ -7,7 +8,7 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 
 public class User : EntityRoot<IdGuid>
 {
-   // public IdGuid IdGuid { get; private set; }
+    public IdGuid IdGuid { get; private set; }
     
     public string Email { get; private set; }
     
@@ -16,16 +17,22 @@ public class User : EntityRoot<IdGuid>
     public bool IsActive {get; private set;}
     
     public bool IsRegisterByPhone { get; private set; }
-    
-  
+
+
+    public User(IdGuid idGuid, string email)
+    {
+        IdGuid = idGuid;
+        Email = email;
+    }
 
 
     public void RegisterUserByEmail(string email, 
-        string password, 
-        IIdentityRepository  repository)
+        string password)
     {
-        
+        AddDomainEvent(new UserRegisterByEmail());
     }
+    
+   
     
     public void RegisterUserByPhone(string email, string password)
     {

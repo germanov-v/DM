@@ -25,8 +25,12 @@ public class UnitOfWork : IUnitOfWork
                 foreach (var entityEvent in entity.Events)
                 {
                     var eventType = _handlerProvider.GetInterfaceEvent(entity, entityEvent);
-                    var handler = _handlerProvider.GetHandler(eventType);
-                    await handler.Handle(entity, entityEvent, cancellationToken);
+                    if (eventType is not null)
+                    {
+                        var handler = _handlerProvider.GetHandler(eventType);
+                        await handler.Handle(entity, entityEvent, cancellationToken);
+                    }
+              
                 }
                 entity.ClearDomainEvents();
             }
