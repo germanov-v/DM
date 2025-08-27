@@ -1,3 +1,4 @@
+using System.Data;
 using Core.Application.Abstractions;
 using Core.Application.EventHandlers;
 using Core.Domain.SharedKernel.Abstractions;
@@ -36,5 +37,43 @@ public class UnitOfWork : IUnitOfWork
             }
              
         }
+    }
+
+    public ValueTask StartTransaction(CancellationToken cancellationToken,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async ValueTask CommitTransaction(CancellationToken cancellationToken)
+    {
+        while (_changeTracker.TryGetFirst(out var entity))
+        {
+            if (entity?.Events is not null)
+            {
+                foreach (var entityEvent in entity.Events)
+                {
+                    var eventType = _handlerProvider.GetInterfaceEvent(entity, entityEvent);
+                    if (eventType is not null)
+                    {
+                        var handler = _handlerProvider.GetHandler(eventType);
+                        await handler.Handle(entity, entityEvent, cancellationToken);
+                    }
+              
+                }
+                entity.ClearDomainEvents();
+            }
+             
+        }
+    }
+
+    public ValueTask RollbackTransaction(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask RollbackTransactionIfExist(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }

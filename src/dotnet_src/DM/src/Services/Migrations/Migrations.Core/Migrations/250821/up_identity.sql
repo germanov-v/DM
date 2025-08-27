@@ -69,15 +69,3 @@ CREATE TABLE IF NOT EXISTS identity.sessions
 
 create index if not exists idx_sessions_guid_id on identity.sessions(guid_id);
 
--- COURSES start
-
-
-
-
-
--- COURSES end
-
--- mentors
-
--- students
-

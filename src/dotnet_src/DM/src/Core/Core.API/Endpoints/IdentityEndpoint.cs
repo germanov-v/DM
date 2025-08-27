@@ -33,7 +33,7 @@ public class IdentityEndpoint : IEndpoint
         
         user.RegisterUserByEmail("test","test");
         changeTracker.Track(user);
-        await uow.Commit(cancellationToken);
+        await uow.CommitTransaction(cancellationToken);
         return Results.Ok(1);
     }
 
