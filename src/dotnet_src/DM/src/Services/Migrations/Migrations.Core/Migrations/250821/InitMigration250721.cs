@@ -7,7 +7,7 @@ public class InitMigration250721 : Migration
 {
     public override void Up()
     {
-       Execute.Script("./Migrations/250821/up_identity.sql");
+       Execute.Script("./Migrations/250821/up_identityV2.sql");
        
       
        // Execute.Script("./Migrations/250721/up_blog.sql");

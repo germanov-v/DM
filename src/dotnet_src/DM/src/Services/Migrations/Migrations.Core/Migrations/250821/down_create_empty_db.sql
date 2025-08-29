@@ -48,6 +48,10 @@
 -- DROP SCHEMA reference;
 
 -- identity
+DROP TABLE identity.users_email;
+DROP TABLE identity.users_phone;
+DROP TABLE identity.external_providers;
+
 
 DROP TABLE identity.users_roles;
 DROP TABLE identity.sessions;
