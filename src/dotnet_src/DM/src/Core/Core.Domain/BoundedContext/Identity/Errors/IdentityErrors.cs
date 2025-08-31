@@ -1,4 +1,4 @@
-using Core.Domain.SharedKernel.Results;
+using Core.Domain.SharedKernel.Errors;
 
 namespace Core.Domain.BoundedContext.Identity.Errors;
 

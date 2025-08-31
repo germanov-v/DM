@@ -1,7 +1,6 @@
 using System.Reflection;
 using Core.Application.EventHandlers;
 using Core.Application.EventHandlers.Notifications;
-using Core.Application.Services.Identity;
 using Core.Application.SharedServices;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Events;

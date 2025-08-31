@@ -1,6 +1,6 @@
 using Core.Domain.BoundedContext.Identity.Services;
 
-namespace Core.Application.Services.Identity;
+namespace Core.Application.Services.Crypto;
 
 public class CryptoService : ICryptoService
 {

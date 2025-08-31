@@ -1,6 +1,6 @@
 using System.Reflection;
 using Core.Application.Abstractions;
-using Core.Application.Services.Identity;
+using Core.Application.Services.Crypto;
 using Core.Application.SharedServices;
 using Core.Domain.SharedKernel.Abstractions;
 

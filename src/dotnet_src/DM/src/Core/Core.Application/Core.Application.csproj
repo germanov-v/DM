@@ -8,8 +8,8 @@
 
     <ItemGroup>
       <Folder Include="Abstractions\Repositories\" />
-      <Folder Include="Dto\" />
-      <Folder Include="Options\" />
+      <Folder Include="Common\" />
+      <Folder Include="Services\Identity\" />
       <Folder Include="Services\Notifications\" />
     </ItemGroup>
 
@@ -18,8 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.2" />
     </ItemGroup>
 
 </Project>

@@ -1,16 +1,9 @@
-namespace Core.Domain.SharedKernel.Results;
+using Core.Domain.SharedKernel.Errors;
+
+namespace Core.Application.SharedKernel.Results;
 
 
-public enum ErrorType
-{
-    Validation,
-    NotFound,
-    Conflict,
-    Forbidden,
-    Failure
-}
 
-public sealed record Error(string Code, string Message, ErrorType Type = ErrorType.Failure);
 
 public class Result
 {

@@ -1,10 +1,10 @@
 using System.Reflection;
 using Core.API.Extensions.DI;
-using Core.Application.SharedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddRepositories(builder.Configuration);
 builder.Services.AddEventHandlers();
 
 var app = builder.Build();

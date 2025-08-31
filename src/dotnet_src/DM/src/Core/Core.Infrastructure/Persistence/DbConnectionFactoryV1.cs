@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace Core.Infrastructure.Repositories;
 
-public class DbConnectionFactory : IDbConnectionFactory<NpgsqlConnection>
+public class DbConnectionFactoryV1 : IDbConnectionFactory<NpgsqlConnection>
 {
     public void Dispose()
     {

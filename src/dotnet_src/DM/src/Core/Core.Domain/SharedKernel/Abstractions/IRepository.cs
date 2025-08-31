@@ -1,4 +1,4 @@
-namespace Core.Application.Abstractions.Repositories;
+namespace Core.Domain.SharedKernel.Abstractions;
 
 public interface IRepository 
 {
