@@ -3,6 +3,7 @@ using Core.Application.Dto.Identity;
 using Core.Application.Handlers.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
+using Core.Domain.SharedKernel.Errors;
 using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,40 +12,39 @@ using Microsoft.Extensions.Options;
 
 namespace Core.API.Endpoints;
 
-public class IdentityEndpoint : IEndpoint
+public class IdentityEndpoint : BaseEndpoint
 {
-    public void ConfigureUrlMaps(RouteGroupBuilder routeGroupBuilder, WebApplication application)
+    public override void ConfigureUrlMaps(RouteGroupBuilder routeGroupBuilder, WebApplication application)
     {
-        routeGroupBuilder.MapPost("/identity",  Authenticate);
+        routeGroupBuilder.MapPost("/identity", Authenticate);
 
-        routeGroupBuilder.MapGet("/test",   TestDdd);
-        
+        routeGroupBuilder.MapGet("/test", TestDdd);
+
         routeGroupBuilder.MapPost("/identity/auth-by-email/{role}", AuthenticationByEmailCookie);
         routeGroupBuilder.MapPost("/identity/refresh", RefreshJwtCookie);
     }
-    
+
     public async Task<IResult> Authenticate(string username, string password)
     {
-        
         return Results.Ok(1);
     }
 
     public async Task<IResult> TestDdd(
-          [FromServices] IUnitOfWork uow,
-          [FromServices] IChangeTracker  changeTracker,
-          CancellationToken cancellationToken
-        )
+        [FromServices] IUnitOfWork uow,
+        [FromServices] IChangeTracker changeTracker,
+        CancellationToken cancellationToken
+    )
     {
         var user = new User(new IdGuid(1, Guid.NewGuid()), "test");
-        
-        user.RegisterUserByEmail("test","test");
+
+        user.RegisterUserByEmail("test", "test");
         changeTracker.Track(user);
         await uow.CommitTransaction(cancellationToken);
         return Results.Ok(1);
     }
 
-    
-    public async Task<Results<Ok<AuthJwtResponse>, BadRequest<ProblemHttpResult>>> AuthenticationByEmailCookie(
+
+    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> AuthenticationByEmailCookie(
         [FromBody] LoginEmailFingerpintRequestDto dto,
         [FromServices] IIdentityHandler handler,
         string role,
@@ -53,12 +53,17 @@ public class IdentityEndpoint : IEndpoint
         CancellationToken cancellationToken
     )
     {
-      
-        LoginEmailRoleFingerprintRequestDto roleDto = new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, dto.Fingerprint);
-        
-        var jwtResponse = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
+        LoginEmailRoleFingerprintRequestDto roleDto =
+            new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, dto.Fingerprint);
 
+        var resultHandler = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
 
+        if (resultHandler.IsFailure)
+        {
+            return MapResultError(resultHandler, httpContext);
+        }
+
+        var jwtResponse = resultHandler.Value;
         var result = new AuthJwtResponse(
             jwtResponse.AccessToken,
             jwtResponse.ExpiresIn,
@@ -67,31 +72,30 @@ public class IdentityEndpoint : IEndpoint
 
         var cookieOptions = new CookieOptions()
         {
-            Expires = DateTimeOffset.Now.AddSeconds( authOption.Value.RefreshTokenLifetime),
+            Expires = DateTimeOffset.Now.AddSeconds(authOption.Value.RefreshTokenLifetime),
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
         };
         httpContext.Response.Cookies.Append(key: "refreshToken", jwtResponse.RefreshToken,
             cookieOptions);
-        
+
         return TypedResults.Ok(result);
     }
-    
-    
+
+
     public async Task<Results<Ok<AuthJwtResponse>, BadRequest<ProblemHttpResult>,
         UnauthorizedHttpResult, ProblemHttpResult>> RefreshJwtCookie(
         [FromBody] RefreshTokenDto dto,
         [FromServices] IIdentityHandler handler,
         HttpContext httpContext,
-        
         IOptions<IdentityAuthOptions> authOption,
         CancellationToken cancellationToken
     )
     {
         // var refreshToken = httpContext.Request.Cookies["refreshToken"] ?? String.Empty;
-      
-        if(httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+
+        if (httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
         {
             dto.RefreshToken = refreshToken;
         }
@@ -99,7 +103,7 @@ public class IdentityEndpoint : IEndpoint
         var jwtResponse = await handler.RefreshAuth(dto, cancellationToken);
         var cookieOptions = new CookieOptions()
         {
-            Expires = DateTimeOffset.Now.AddSeconds( authOption.Value.RefreshTokenLifetime),
+            Expires = DateTimeOffset.Now.AddSeconds(authOption.Value.RefreshTokenLifetime),
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
@@ -113,8 +117,8 @@ public class IdentityEndpoint : IEndpoint
         );
         return TypedResults.Ok(result);
     }
-   
-    
+
+
     public async Task<Results<Ok<AuthJwtResponseDto>, BadRequest<ProblemHttpResult>>> AuthenticationByEmail(
         [FromBody] LoginEmailFingerpintRequestDto dto,
         [FromServices] IIdentityHandler handler,
@@ -123,19 +127,19 @@ public class IdentityEndpoint : IEndpoint
         CancellationToken cancellationToken
     )
     {
-        var roleDto = new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, dto.Fingerprint);
-
-
-        var result = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
-
-        return TypedResults.Ok(result);
+        throw new NotImplementedException();
+        // var roleDto = new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, dto.Fingerprint);
+        //
+        //
+        // var result = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
+        //
+        // return TypedResults.Ok(result);
     }
-    
+
     public async Task<Results<Ok<AuthJwtResponseDto>, BadRequest<ProblemHttpResult>,
         UnauthorizedHttpResult, ProblemHttpResult>> RefreshJwt(
         [FromBody] RefreshTokenDto dto,
         [FromServices] IIdentityHandler handler,
         CancellationToken cancellationToken
     ) => TypedResults.Ok(await handler.RefreshAuth(dto, cancellationToken));
-
 }

@@ -1,3 +1,4 @@
+using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.SharedKernel.Abstractions;
@@ -6,7 +7,7 @@ namespace Core.Application.Handlers.Identity;
 
 public interface IIdentityHandler : IApplicationService
 {
-    Task<AuthJwtResponseDto> Authenticate(LoginEmailRoleFingerprintRequestDto dto, 
+    Task<Result<AuthJwtResponseDto>> Authenticate(LoginEmailRoleFingerprintRequestDto dto, 
         CancellationToken cancellationToken,
         string? refreshToken =  null);
 

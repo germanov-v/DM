@@ -6,7 +6,11 @@ public enum ErrorType
     NotFound,
     Conflict,
     Forbidden,
-    Failure
+    Failure,
+    None,
 }
 
-public sealed record Error(string Code, string Message, ErrorType Type = ErrorType.Failure);
+public sealed record Error(string Message, ErrorType Type = ErrorType.None)
+{
+    public static Error None => new(string.Empty, ErrorType.None);
+}

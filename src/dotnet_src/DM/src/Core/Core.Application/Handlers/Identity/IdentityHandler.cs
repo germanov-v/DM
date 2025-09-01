@@ -2,11 +2,13 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Security.Claims;
 using Core.Application.Abstractions;
+using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.BoundedContext.Identity.Services;
+using Core.Domain.SharedKernel.Errors;
 using Microsoft.Extensions.Options;
 
 namespace Core.Application.Handlers.Identity;
@@ -41,11 +43,14 @@ public class IdentityHandler : IIdentityHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<AuthJwtResponseDto> Authenticate(LoginEmailRoleFingerprintRequestDto dto,
+    public async Task<Result<AuthJwtResponseDto>> Authenticate(LoginEmailRoleFingerprintRequestDto dto,
         CancellationToken cancellationToken,
         string? refreshToken = null)
     {
-        throw new NotImplementedException();
+      
+     //   return Result<AuthJwtResponseDto>.Ok(new AuthJwtResponseDto("sdf", "sdfsd", new User(){}));
+        return Result<AuthJwtResponseDto>.Fail(new Error("Not found user", ErrorType.Forbidden));
+        //throw new NotImplementedException();
         // var user = await GetUserByDto(dto, cancellationToken);
         //
         // var result = GenerateAuthDto(user);
