@@ -12,7 +12,7 @@ namespace Core.Application.Dto.Identity;
 //     public string Fingerprint { get; set; }
 // }
 
-public record LoginEmailFingerpintRequestDto(string Email, string Password,
+public record LoginEmailFingerprintRequestDto(string Email, string Password,
     string Fingerprint);
 
 public record LoginEmailRequestDto(string Email, string Password);

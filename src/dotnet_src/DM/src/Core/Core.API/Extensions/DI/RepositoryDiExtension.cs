@@ -4,12 +4,13 @@ using Core.Application.Handlers.Identity;
 using Core.Application.Options.Db;
 using Core.Application.SharedServices;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.Entities;
 using Core.Infrastructure.Persistence;
 using Npgsql;
 
 namespace Core.API.Extensions.DI;
 
-public static class RepositoryCollectionExtension
+public static class RepositoryDiExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection,
         IConfiguration configuration)
@@ -38,6 +39,7 @@ public static class RepositoryCollectionExtension
        {
            typeof(UnitOfWork).Assembly,
            typeof(IdentityHandler).Assembly,
+           typeof(IEntity).Assembly,
        };
       
 

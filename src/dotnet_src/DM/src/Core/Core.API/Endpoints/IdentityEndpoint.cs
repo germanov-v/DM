@@ -3,6 +3,7 @@ using Core.Application.Dto.Identity;
 using Core.Application.Handlers.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
+using Core.Domain.Constants;
 using Core.Domain.SharedKernel.Errors;
 using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.ValueObjects;
@@ -20,32 +21,20 @@ public class IdentityEndpoint : BaseEndpoint
 
         routeGroupBuilder.MapGet("/test", TestDdd);
 
-        routeGroupBuilder.MapPost("/identity/auth-by-email/{role}", AuthenticationByEmailCookie);
+        routeGroupBuilder.MapPost("/identity/auth/moderator", WebModeratorAuthenticationByEmail);
         routeGroupBuilder.MapPost("/identity/refresh", RefreshJwtCookie);
     }
-
-    public async Task<IResult> Authenticate(string username, string password)
-    {
-        return Results.Ok(1);
-    }
-
-    public async Task<IResult> TestDdd(
-        [FromServices] IUnitOfWork uow,
-        [FromServices] IChangeTracker changeTracker,
+    
+    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebModeratorAuthenticationByEmail(
+        [FromBody] LoginEmailRequestDto dto,
+        [FromServices] IIdentityHandler handler,
+        HttpContext httpContext,
+        IOptions<IdentityAuthOptions> authOption,
         CancellationToken cancellationToken
-    )
-    {
-        var user = new User(new IdGuid(1, Guid.NewGuid()), "test");
+    )=> await WebAuthenticationByEmail(dto, handler, RoleConstants.Moderator, httpContext, authOption, cancellationToken);
 
-        user.RegisterUserByEmail("test", "test");
-        changeTracker.Track(user);
-        await uow.CommitTransaction(cancellationToken);
-        return Results.Ok(1);
-    }
-
-
-    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> AuthenticationByEmailCookie(
-        [FromBody] LoginEmailFingerpintRequestDto dto,
+    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebAuthenticationByEmail(
+        [FromBody] LoginEmailRequestDto dto,
         [FromServices] IIdentityHandler handler,
         string role,
         HttpContext httpContext,
@@ -54,7 +43,7 @@ public class IdentityEndpoint : BaseEndpoint
     )
     {
         LoginEmailRoleFingerprintRequestDto roleDto =
-            new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, dto.Fingerprint);
+            new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, "");
 
         var resultHandler = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
 
@@ -82,6 +71,29 @@ public class IdentityEndpoint : BaseEndpoint
 
         return TypedResults.Ok(result);
     }
+    
+    
+    public async Task<IResult> Authenticate(string username, string password)
+    {
+        return Results.Ok(1);
+    }
+
+    public async Task<IResult> TestDdd(
+        [FromServices] IUnitOfWork uow,
+        [FromServices] IChangeTracker changeTracker,
+        CancellationToken cancellationToken
+    )
+    {
+        var user = new User(new IdGuid(1, Guid.NewGuid()), "test");
+
+        user.RegisterUserByEmail("test", "test");
+        changeTracker.Track(user);
+        await uow.CommitTransaction(cancellationToken);
+        return Results.Ok(1);
+    }
+
+
+   
 
 
     public async Task<Results<Ok<AuthJwtResponse>, BadRequest<ProblemHttpResult>,
@@ -120,7 +132,7 @@ public class IdentityEndpoint : BaseEndpoint
 
 
     public async Task<Results<Ok<AuthJwtResponseDto>, BadRequest<ProblemHttpResult>>> AuthenticationByEmail(
-        [FromBody] LoginEmailFingerpintRequestDto dto,
+        [FromBody] LoginEmailRequestDto dto,
         [FromServices] IIdentityHandler handler,
         string role,
         HttpContext httpContext,
