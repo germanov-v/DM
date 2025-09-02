@@ -9,8 +9,7 @@
     <ItemGroup>
       <Folder Include="Abstractions\Repositories\" />
       <Folder Include="Common\" />
-      <Folder Include="Services\Identity\" />
-      <Folder Include="Services\Notifications\" />
+      <Folder Include="BusinessLogic\Notifications\" />
     </ItemGroup>
 
     <ItemGroup>

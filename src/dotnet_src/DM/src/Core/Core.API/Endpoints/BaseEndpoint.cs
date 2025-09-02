@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices.JavaScript;
 using Core.Application.Common.Results;
-using Core.Domain.SharedKernel.Errors;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Core.API.Endpoints;
@@ -56,4 +55,33 @@ public abstract class BaseEndpoint : IEndpoint
             ? TypedResults.Ok(result.Value)
             : MapResultError(result, httpContext);
     //result.Error
+}
+
+public static class ErrorTypeMapping
+{
+    public static int ToStatusCode(this ErrorType type) => type switch
+    {
+        ErrorType.None         => StatusCodes.Status200OK,
+        ErrorType.BadRequest   => StatusCodes.Status400BadRequest,
+        ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+        ErrorType.Forbidden    => StatusCodes.Status403Forbidden,
+        ErrorType.NotFound     => StatusCodes.Status404NotFound,
+        ErrorType.Conflict     => StatusCodes.Status409Conflict,
+        ErrorType.Validation   => StatusCodes.Status422UnprocessableEntity,
+        ErrorType.Failure      => StatusCodes.Status500InternalServerError,
+        _                      => StatusCodes.Status500InternalServerError
+    };
+
+    public static string ToTitle(this ErrorType type) => type switch
+    {
+        ErrorType.BadRequest   => "Bad Request",
+        ErrorType.Unauthorized => "Unauthorized",
+        ErrorType.Forbidden    => "Forbidden",
+        ErrorType.NotFound     => "Not Found",
+        ErrorType.Conflict     => "Conflict",
+        ErrorType.Validation   => "Validation Error",
+        ErrorType.Failure      => "Unexpected Server Error",
+        ErrorType.None         => "OK",
+        _                      => "Unexpected Server Error"
+    };
 }

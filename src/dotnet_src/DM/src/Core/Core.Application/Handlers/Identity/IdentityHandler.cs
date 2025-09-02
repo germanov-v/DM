@@ -2,13 +2,13 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Security.Claims;
 using Core.Application.Abstractions;
+using Core.Application.Abstractions.BusinessLogic.Identity;
+using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
-using Core.Domain.BoundedContext.Identity.Services;
-using Core.Domain.SharedKernel.Errors;
 using Microsoft.Extensions.Options;
 
 namespace Core.Application.Handlers.Identity;
@@ -20,7 +20,9 @@ namespace Core.Application.Handlers.Identity;
 public class IdentityHandler : IIdentityHandler
 {
 
-    private readonly ICryptoService _cryptoService;
+    private readonly ICryptoIdentityService _cryptoIdentityService;
+
+    private readonly IEmailPasswordProvider _emailPasswordProvider;
     private readonly ISessionRepository _authTokenRepository;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
@@ -30,46 +32,62 @@ public class IdentityHandler : IIdentityHandler
     public IdentityHandler(
         IOptions<IdentityAuthOptions> authOption,
         ISessionRepository authTokenRepository,
-        ICryptoService cryptoService,
+        ICryptoIdentityService cryptoIdentityService,
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IEmailPasswordProvider emailPasswordProvider)
     {
         _authOption = authOption.Value;
         _authTokenRepository = authTokenRepository;
-        _cryptoService = cryptoService;
+        _cryptoIdentityService = cryptoIdentityService;
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
+        _emailPasswordProvider = emailPasswordProvider;
     }
 
-    public async Task<Result<AuthJwtResponseDto>> Authenticate(LoginEmailRoleFingerprintRequestDto dto,
+    public async Task<Result<AuthJwtResponseDto>> AuthenticateByEmailPasswordRole(string email,
+        string password, string role,
         CancellationToken cancellationToken,
         string? refreshToken = null)
     {
-      
-     //   return Result<AuthJwtResponseDto>.Ok(new AuthJwtResponseDto("sdf", "sdfsd", new User(){}));
-        return Result<AuthJwtResponseDto>.Fail(new Error("Not found user", ErrorType.Forbidden));
-        //throw new NotImplementedException();
-        // var user = await GetUserByDto(dto, cancellationToken);
-        //
-        // var result = GenerateAuthDto(user);
-        //
-        // var date = DateTimeApplication.GetCurrentDate();
-        // var entity = new AuthToken()
-        // {
-        //     AccessToken = result.AccessToken,
-        //     CreatedDate = date,
-        //     RefreshToken = result.RefreshToken,
-        //     UserId = user.Id,
-        //     
-        //     // TODO: !!!!!!! ЗДЕСЬ ДУБЛЬ ФУНКЦИОНАЛА!!!!!!!!! с CryptoService
-        //     RefreshTokenDateExpired = date.AddSeconds(_authOption.RefreshTokenLifetime),
-        //     Fingerprint = dto.Fingerprint
-        // };
-        // await _authTokenRepository.Create(entity, cancellationToken);
-        //
-        // return result;
+        
+        var resultUser = await _emailPasswordProvider.GetUserByCredential(email, password, cancellationToken);
+
+        
+        if (resultUser.IsFailure)
+        {
+            Result<AuthJwtResponseDto>.Fail(resultUser.Error with { Type = ErrorType.Forbidden });
+            return Result<AuthJwtResponseDto>.Fail(resultUser.Error with { Type = ErrorType.Forbidden });
+        }
+        
+        var resultRole = await _emailPasswordProvider.IsInRole(resultUser.Value, role, cancellationToken);
+
+        if (!resultRole)
+        {
+            return Result<AuthJwtResponseDto>.Fail(new Error("User is not in role", ErrorType.Forbidden));
+        }
+        
+        
+            
+        var result = GenerateAuthDto(user);
+        
+        var date = DateTimeApplication.GetCurrentDate();
+        var entity = new AuthToken()
+        {
+            AccessToken = result.AccessToken,
+            CreatedDate = date,
+            RefreshToken = result.RefreshToken,
+            UserId = user.Id,
+            
+            // TODO: !!!!!!! ЗДЕСЬ ДУБЛЬ ФУНКЦИОНАЛА!!!!!!!!! с CryptoService
+            RefreshTokenDateExpired = date.AddSeconds(_authOption.RefreshTokenLifetime),
+            Fingerprint = dto.Fingerprint
+        };
+        await _authTokenRepository.Create(entity, cancellationToken);
+        
+        return result;
     }
 
 
@@ -139,7 +157,7 @@ public class IdentityHandler : IIdentityHandler
         LoginEmailRoleFingerprintRequestDto dto,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+       
         
         // var role = await _roleRepository.GetByAlias(dto.Role, cancellationToken);
         // if (role == null)

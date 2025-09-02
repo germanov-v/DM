@@ -4,7 +4,6 @@ using Core.Application.Handlers.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.Constants;
-using Core.Domain.SharedKernel.Errors;
 using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -42,10 +41,9 @@ public class IdentityEndpoint : BaseEndpoint
         CancellationToken cancellationToken
     )
     {
-        LoginEmailRoleFingerprintRequestDto roleDto =
-            new LoginEmailRoleFingerprintRequestDto(dto.Email, dto.Password, role, "");
+     
 
-        var resultHandler = await handler.Authenticate(roleDto, cancellationToken: cancellationToken);
+        var resultHandler = await handler.Authenticate(dto, cancellationToken: cancellationToken);
 
         if (resultHandler.IsFailure)
         {
@@ -71,6 +69,9 @@ public class IdentityEndpoint : BaseEndpoint
 
         return TypedResults.Ok(result);
     }
+    
+   
+    ////////////////////////////////////////////////////////////////////////////
     
     
     public async Task<IResult> Authenticate(string username, string password)

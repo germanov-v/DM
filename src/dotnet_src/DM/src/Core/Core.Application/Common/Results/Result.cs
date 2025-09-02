@@ -1,19 +1,21 @@
 using System.Diagnostics.CodeAnalysis;
-using Core.Domain.SharedKernel.Errors;
 
 namespace Core.Application.Common.Results;
 
 
 
-
 public class Result
 {
-    public bool IsSuccess { get; }
+    public virtual bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
     public Error Error { get; } = Error.None;
 
     protected Result(bool isSuccess, Error error)
     {
+        if (error.Type==ErrorType.None)
+            throw new ArgumentException($"{nameof(error)}.{nameof(error.Type)}", nameof(error));
+       
+     
         IsSuccess = isSuccess;
         Error = error;
     }
@@ -24,41 +26,37 @@ public class Result
     }
     
     public static Result Ok()=>new (true);
-    public static Result Fail(Error error)=>new(false, error);
+    public  static Result Fail(Error error)=>new(false, error);
 }
 
 
-public sealed class Result<T> //: Result
+public sealed class Result<T> : Result
 {
     private readonly T? _value;
     
     [MemberNotNullWhen(true, nameof(_value))]
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
-    public Error Error { get; } = Error.None;
-   //public T Value { get; }
+    public override bool IsSuccess { get; }
+   // public bool IsFailure => !IsSuccess;
+   // public Error Error { get; } = Error.None;
+   
 
    public T Value => !IsSuccess || _value is null ? 
        throw new InvalidOperationException("Value is not available for failed Result.")
        : _value;
    
 
-    private Result(T value)
+    private Result(T value) :  base(true)
     {
         _value = value;
         IsSuccess = true;
     } 
-    private  Result(Error error) 
+    private  Result(Error error) : base(false, error)
     {
-        if (error.Type==ErrorType.None)
-            throw new ArgumentException($"{nameof(error)}.{nameof(error.Type)}", nameof(error));
        
-        IsSuccess = false;
-        Error = error;
     }
 
     public static Result<T> Ok(T value) => new(value);
-    public static Result<T> Fail(Error error) => new(error);
+    public new static Result<T> Fail(Error error) => new(error);
 
     public bool TryGetValue([NotNullWhen(false)] out T? value)
     {

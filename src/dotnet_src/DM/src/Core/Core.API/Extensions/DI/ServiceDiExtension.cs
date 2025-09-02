@@ -1,8 +1,9 @@
 using System.Reflection;
 using Core.Application.Abstractions;
-using Core.Application.Services.Crypto;
+using Core.Application.Abstractions.Services;
 using Core.Application.SharedServices;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Infrastructure.Services.Identity;
 
 namespace Core.API.Extensions.DI;
 
@@ -14,7 +15,7 @@ public static class ServiceDiExtension
       
 
         var assemblies = new Assembly[] {
-            typeof(CryptoService).Assembly,
+            typeof(CryptoIdentityService).Assembly,
           //  typeof(KafkaEventBus).Assembly,
             Assembly.GetExecutingAssembly()
         };

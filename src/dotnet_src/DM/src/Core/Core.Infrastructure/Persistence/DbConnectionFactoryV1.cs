@@ -2,9 +2,10 @@ using System.Data.Common;
 using Core.Application.Abstractions;
 using Npgsql;
 
-namespace Core.Infrastructure.Repositories;
+namespace Core.Infrastructure.Persistence;
 
-public class DbConnectionFactoryV1 : IDbConnectionFactory<NpgsqlConnection>
+[Obsolete]
+public class DbConnectionFactoryV1 //: IDbConnectionFactory<NpgsqlConnection>
 {
     public void Dispose()
     {
