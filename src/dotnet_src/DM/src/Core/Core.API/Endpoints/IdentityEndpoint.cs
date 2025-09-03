@@ -1,3 +1,4 @@
+using System.Xml;
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.Handlers;
 using Core.Application.Dto.Identity;
@@ -17,9 +18,9 @@ public class IdentityEndpoint : BaseEndpoint
 {
     public override void ConfigureUrlMaps(RouteGroupBuilder routeGroupBuilder, WebApplication application)
     {
-        routeGroupBuilder.MapPost("/identity", Authenticate);
-
-        routeGroupBuilder.MapGet("/test", TestDdd);
+        // routeGroupBuilder.MapPost("/identity", Authenticate);
+        //
+        // routeGroupBuilder.MapGet("/test", TestDdd);
 
         routeGroupBuilder.MapPost("/identity/auth/moderator", WebModeratorAuthenticationByEmail);
         routeGroupBuilder.MapPost("/identity/refresh", RefreshJwtCookie);
@@ -44,7 +45,13 @@ public class IdentityEndpoint : BaseEndpoint
     {
      
 
-        var resultHandler = await handler.Authenticate(dto, cancellationToken: cancellationToken);
+        var resultHandler = await handler.AuthenticateByEmailPasswordRole(dto.Email,
+            dto.Password,
+            role,
+            httpContext.Connection.RemoteIpAddress,
+            String.Empty, 
+            
+            cancellationToken: cancellationToken);
 
         if (resultHandler.IsFailure)
         {
@@ -75,24 +82,24 @@ public class IdentityEndpoint : BaseEndpoint
     ////////////////////////////////////////////////////////////////////////////
     
     
-    public async Task<IResult> Authenticate(string username, string password)
-    {
-        return Results.Ok(1);
-    }
-
-    public async Task<IResult> TestDdd(
-        [FromServices] IUnitOfWork uow,
-        [FromServices] IChangeTracker changeTracker,
-        CancellationToken cancellationToken
-    )
-    {
-        var user = new User(new IdGuid(1, Guid.NewGuid()), "test");
-
-        user.RegisterUserByEmail("test", "test");
-        changeTracker.Track(user);
-        await uow.CommitTransaction(cancellationToken);
-        return Results.Ok(1);
-    }
+    // public async Task<IResult> Authenticate(string username, string password)
+    // {
+    //     return Results.Ok(1);
+    // }
+    //
+    // public async Task<IResult> TestDdd(
+    //     [FromServices] IUnitOfWork uow,
+    //     [FromServices] IChangeTracker changeTracker,
+    //     CancellationToken cancellationToken
+    // )
+    // {
+    //     var user = new User(new IdGuid(1, Guid.NewGuid()), "test");
+    //
+    //     user.RegisterUserByEmail("test", "test");
+    //     changeTracker.Track(user);
+    //     await uow.CommitTransaction(cancellationToken);
+    //     return Results.Ok(1);
+    // }
 
 
    

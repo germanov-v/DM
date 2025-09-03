@@ -10,7 +10,6 @@ public record AuthJwtResponse(string AccessToken,
     AuthUserResponseDto User);
 
 public record AuthUserResponseDto(
-    string GuidId,
+    Guid GuidId,
     string Name,
-    List<string> Roles,
     string Contact);

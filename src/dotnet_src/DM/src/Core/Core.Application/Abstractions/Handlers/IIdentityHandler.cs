@@ -1,3 +1,4 @@
+using System.Net;
 using Core.Application.Abstractions.Services;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
@@ -7,9 +8,12 @@ namespace Core.Application.Abstractions.Handlers;
 
 public interface IIdentityHandler : IApplicationService
 {
-    Task<Result<AuthJwtResponseDto>> Authenticate(LoginEmailRequestDto dto, 
-        CancellationToken cancellationToken,
-        string? refreshToken =  null);
+    Task<Result<AuthJwtResponseDto>> AuthenticateByEmailPasswordRole(string email,
+        string password, 
+        string role,
+        IPAddress? ip,
+        string fingerprint,
+        CancellationToken cancellationToken);
 
     Task<AuthJwtResponseDto> RefreshAuth(RefreshTokenDto dto, CancellationToken cancellationToken,
         string? refreshToken  =  null);

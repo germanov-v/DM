@@ -13,7 +13,7 @@ public interface ICryptoIdentityService : IApplicationService
 
     public string GetHashPassword(string password, byte[] salt) ;
 
-    string GenerateAccessToken(IEnumerable<Claim> claims);
+    string GenerateAccessToken(IEnumerable<Claim> claims, DateTime expires);
 
     string GenerateRefreshToken();
 }

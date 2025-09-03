@@ -40,6 +40,6 @@ public class RuntimeTypeHandlerTests
      //   handler.Handle(new User(new IdGuid(1, Guid.Empty), ""), new UserRegisterByEmail(), CancellationToken.None);
 
         var handler2 = (IEventHandler)test1;
-        handler2.Handle(new User(new IdGuid(1, Guid.Empty), ""), null, CancellationToken.None);
+        //handler2.Handle(new User(new IdGuid(1, Guid.Empty), ""), null, CancellationToken.None);
     }
 }

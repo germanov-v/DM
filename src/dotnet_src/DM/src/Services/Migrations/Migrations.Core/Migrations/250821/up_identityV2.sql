@@ -144,7 +144,11 @@ CREATE TABLE IF NOT EXISTS identity.sessions
             on delete restrict,
     guid_id uuid not null,
     created_at timestamp with time zone default now(),
-    ip inet not null
+    access_token text not null,
+    refresh_token text not null,
+    refresh_expired timestamp with time zone default now(),
+    fingerprint text not null,
+    ip inet
 );
 
 create index if not exists idx_sessions_guid_id on identity.sessions(guid_id);

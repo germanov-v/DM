@@ -11,9 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Core.Infrastructure.Services.Identity;
 
-public class CryptoIdentityService(IOptions<IdentityAuthOptions> authOption,
-    IDateTimeProvider dateTimeProvider
-    )  : ICryptoIdentityService
+public class CryptoIdentityService(IOptions<IdentityAuthOptions> authOption)  : ICryptoIdentityService
 {
     private readonly IdentityAuthOptions _authOptions = authOption.Value;
 
@@ -36,16 +34,15 @@ public class CryptoIdentityService(IOptions<IdentityAuthOptions> authOption,
     );
 
 
-    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    public string GenerateAccessToken(IEnumerable<Claim> claims, DateTime expiresRefresh)
     {
-        var dateNow = dateTimeProvider.OffsetNow;
-
+    
         var jwtToken = new JwtSecurityToken(
             issuer: _authOptions.Url,
             audience: _authOptions.Url,
             claims: claims,
             //  notBefore:
-            expires: dateNow.UtcDateTime.AddSeconds(_authOptions.AccessTokenLifetime),
+            expires: expiresRefresh,
             signingCredentials: new SigningCredentials(
                 GetSymmetricSecurityKey(),
                 SecurityAlgorithms.HmacSha256
