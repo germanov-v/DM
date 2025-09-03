@@ -3,14 +3,38 @@ using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class IdGuid : IId, IValueObject, IEquatable<IdGuid>
+public class IdGuid : ValueObject, IId
+{
+    public long ValueLong { get; }
+
+    public Guid ValueGuid { get; }
+
+    public IdGuid(long valueLong, Guid valueGuid)
+    {
+        ValueLong = valueLong;
+        ValueGuid = valueGuid;
+    }
+    
+    protected override IEnumerable<object?> GetEqualityComponents()
+    {
+        yield return ValueLong;
+        yield return ValueGuid;
+    }
+
+    public override string ToString()
+        => $"{ValueLong}-{ValueGuid}";
+}
+
+
+[Obsolete]
+class OldIdGuid : IId, IValueObject, IEquatable<OldIdGuid>
 {
     private readonly long _longValue;
     
     private readonly Guid _guidValue;
     
     
-    public IdGuid(long id, Guid guid)
+    public OldIdGuid(long id, Guid guid)
     {
         _longValue = id;
         _guidValue = guid;
@@ -22,7 +46,7 @@ public class IdGuid : IId, IValueObject, IEquatable<IdGuid>
     public Guid Guid => _guidValue;
 
 
-    public bool Equals(IdGuid? other)
+    public bool Equals(OldIdGuid? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;

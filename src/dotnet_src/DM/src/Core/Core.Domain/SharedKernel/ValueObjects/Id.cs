@@ -3,7 +3,17 @@ using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class Id: IValueObject, IEquatable<Id>,IId
+
+public class Id : ValueObject<long>, IId
+{
+    public Id(long value) : base(value)
+    {
+    }
+}
+
+
+[Obsolete]
+class DraftIdCustom: IValueObject, IEquatable<Id>,IId
 {
 
     private long _id;

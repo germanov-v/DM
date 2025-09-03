@@ -1,16 +1,16 @@
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class Status : IValueObject
+public class Status : ValueObject<bool> // IValueObject
 {
-    public bool Value { get; private set; }
+    
     
     public DateTimeOffset ChangedAt { get; private set; }
 
-    public Status(bool value, DateTimeOffset changedAt)
+    public Status(bool value, DateTimeOffset changedAt) : base(false)
     {
-        Value = value;
-        ChangedAt = changedAt;
+       ChangedAt = changedAt;
     }
 }

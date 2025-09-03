@@ -13,5 +13,4 @@ public record AuthUserResponseDto(
     string GuidId,
     string Name,
     List<string> Roles,
-    string? Email,
-    string? Phone);
+    string Contact);

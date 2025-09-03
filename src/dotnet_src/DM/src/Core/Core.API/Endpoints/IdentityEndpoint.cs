@@ -1,4 +1,5 @@
 using Core.Application.Abstractions;
+using Core.Application.Abstractions.Handlers;
 using Core.Application.Dto.Identity;
 using Core.Application.Handlers.Identity;
 using Core.Application.Options.Identity;

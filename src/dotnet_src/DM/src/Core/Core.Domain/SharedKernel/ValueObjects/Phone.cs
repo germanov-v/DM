@@ -3,9 +3,9 @@ using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class Email :  ValueObject<string>
+public class Phone : ClassValueObject<string>
 {
-    public Email(string value) : base(value)
+    public Phone(string value) : base(value)
     {
     }
 }

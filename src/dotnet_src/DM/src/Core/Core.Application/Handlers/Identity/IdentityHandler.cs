@@ -3,12 +3,14 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.BusinessLogic.Identity;
+using Core.Application.Abstractions.Handlers;
 using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Core.Application.Handlers.Identity;
@@ -28,6 +30,8 @@ public class IdentityHandler : IIdentityHandler
     private readonly IRoleRepository _roleRepository;
     private readonly IdentityAuthOptions _authOption;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<IdentityHandler> _logger;
+    private readonly IJwtService _jwtService;
 
     public IdentityHandler(
         IOptions<IdentityAuthOptions> authOption,
@@ -36,7 +40,7 @@ public class IdentityHandler : IIdentityHandler
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
-        IEmailPasswordProvider emailPasswordProvider)
+        IEmailPasswordProvider emailPasswordProvider, ILogger<IdentityHandler> logger, IJwtService jwtService)
     {
         _authOption = authOption.Value;
         _authTokenRepository = authTokenRepository;
@@ -45,12 +49,13 @@ public class IdentityHandler : IIdentityHandler
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
         _emailPasswordProvider = emailPasswordProvider;
+        _logger = logger;
+        _jwtService = jwtService;
     }
 
     public async Task<Result<AuthJwtResponseDto>> AuthenticateByEmailPasswordRole(string email,
         string password, string role,
-        CancellationToken cancellationToken,
-        string? refreshToken = null)
+        CancellationToken cancellationToken)
     {
         
         var resultUser = await _emailPasswordProvider.GetUserByCredential(email, password, cancellationToken);
@@ -71,10 +76,10 @@ public class IdentityHandler : IIdentityHandler
         
         
             
-        var result = GenerateAuthDto(user);
+        var result = _jwtService.GenerateJwtService(resultUser.Value);
         
         var date = DateTimeApplication.GetCurrentDate();
-        var entity = new AuthToken()
+        var entity = new Session()
         {
             AccessToken = result.AccessToken,
             CreatedDate = date,

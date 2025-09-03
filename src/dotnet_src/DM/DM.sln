@@ -83,6 +83,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\Optimization.md = docs\net\Optimization.md
 		docs\net\RuntimeTypeHandle.md = docs\net\RuntimeTypeHandle.md
 		docs\net\StaticClosuer.md = docs\net\StaticClosuer.md
+		docs\net\PatternMatching.md = docs\net\PatternMatching.md
 	EndProjectSection
 EndProject
 Global

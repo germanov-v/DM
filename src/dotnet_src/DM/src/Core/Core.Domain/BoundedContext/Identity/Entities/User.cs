@@ -1,5 +1,6 @@
 using Core.Domain.BoundedContext.Identity.Events;
 using Core.Domain.BoundedContext.Identity.Repositories;
+using Core.Domain.BoundedContext.Identity.ValueObjects;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.ValueObjects;
@@ -8,35 +9,79 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 
 public class User : EntityRoot<IdGuid>
 {
-    public IdGuid IdGuid { get; private set; }
+    public Email? Email { get; }
+
+    public Phone? Phone { get;  }
     
-    public string Email { get; private set; }
+    public VkId? VkId { get;  }
     
-    
-    
-    public bool IsActive {get; private set;}
-    
+    public YandexId? YandexId { get; }
+
+    public Name Name { get; private set; }
+
+    public bool IsActive { get; private set; }
+
     public bool IsRegisterByPhone { get; private set; }
 
 
-    public User(IdGuid idGuid, string email)
+    private readonly HashSet<Role> _roles;
+
+    public IReadOnlyCollection<Role> Roles => _roles;
+
+    // public IEnumerable<Role>? Roles { get; private set; }
+
+
+    public string Contact => Phone?.Value
+                             ?? Email?.Value
+                             ?? VkId?.Value
+                             ?? YandexId?.Value
+                             ?? throw new InvalidOperationException("Contact cannot be null.");
+        
+
+    private User(bool isActive, Name name, IEnumerable<Role>? roles)
     {
-        IdGuid = idGuid;
-        Email = email;
+        IsActive = isActive;
+        // if (roles != null)
+        // {
+        //     _roles = [..roles];
+        //   
+        // }
+
+        _roles = roles switch
+        {
+            null => new HashSet<Role>(),
+            HashSet<Role> hs => new HashSet<Role>(hs), // быстрая копия
+            ICollection<Role> c => new HashSet<Role>(c), // .NET сам оптимизирует под Count
+            _ => new HashSet<Role>(roles)
+        };
+
+        Name = name;
+    }
+
+    public User(IdGuid idGuid, Email email, bool isActive, Name name, IEnumerable<Role>? roles = null)
+        : this(isActive, name, roles)
+    {
+        Id = idGuid;
+        Email = email ?? throw new ArgumentNullException(nameof(email));
+    }
+
+    public User(IdGuid idGuid, Phone phone, bool isActive, Name name, IEnumerable<Role>? roles = null)
+        : this(isActive, name, roles)
+    {
+        Id = idGuid;
+        Phone = phone ?? throw new ArgumentNullException(nameof(phone));
     }
 
 
-    public void RegisterUserByEmail(string email, 
+    public void RegisterUserByEmail(string email,
         string password)
     {
         AddDomainEvent(new UserRegisterByEmail());
     }
-    
-   
-    
+
+
     public void RegisterUserByPhone(string email, string password)
     {
-         
     }
     // public DateTimeOffset CreatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
     // public DateTimeOffset UpdatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
@@ -71,7 +116,7 @@ public class User : EntityRoot<IdGuid>
 
     public bool AllowedToCreateBlogStatus { get; set; }
 
-    public DateTimeOffset AllowedToCreateBlogDate { get; set; } 
+    public DateTimeOffset AllowedToCreateBlogDate { get; set; }
 
     #endregion
 }

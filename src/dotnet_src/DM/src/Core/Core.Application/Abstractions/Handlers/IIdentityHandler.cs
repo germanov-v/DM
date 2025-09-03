@@ -2,9 +2,8 @@ using Core.Application.Abstractions.Services;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
-using Core.Domain.SharedKernel.Abstractions;
 
-namespace Core.Application.Handlers.Identity;
+namespace Core.Application.Abstractions.Handlers;
 
 public interface IIdentityHandler : IApplicationService
 {
