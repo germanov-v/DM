@@ -1,3 +1,4 @@
+using Core.Domain.SharedKernel.ValueObjects.Abstractions;
 using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.BoundedContext.Identity.ValueObjects;

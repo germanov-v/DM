@@ -75,7 +75,7 @@ public static class RepositoryDiExtension
 
 
         serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
-        serviceCollection.AddScoped<IDbConnectionFactory<NpgsqlConnection>, PgsqlConnectionFactory>();
+        serviceCollection.AddScoped<IConnectionFactory<NpgsqlConnection>, PgsqlConnectionFactory>();
         // serviceCollection.AddScoped<INotificationTracker, DomainEventTracker>();
         // serviceCollection.AddScoped<IBaseDomainEventTracker, DomainEventTracker>();
       

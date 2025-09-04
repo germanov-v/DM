@@ -11,7 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.66" />
       <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="10.0.0-preview.7.25380.108" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7" />
       <PackageReference Include="Npgsql" Version="9.0.3" />
       <PackageReference Include="Polly" Version="8.6.3" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
@@ -20,6 +22,7 @@
     <ItemGroup>
       <Folder Include="Options\" />
       <Folder Include="Options\Identity\" />
+      <Folder Include="Persistence\Errors\" />
     </ItemGroup>
 
 </Project>

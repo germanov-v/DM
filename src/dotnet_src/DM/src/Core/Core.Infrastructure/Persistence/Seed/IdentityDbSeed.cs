@@ -1,27 +1,34 @@
 
 
 using Core.Application.Abstractions;
+using Core.Application.Abstractions.BusinessLogic.Identity;
 using Core.Application.Abstractions.Handlers;
+using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.Constants;
+using Core.Domain.SharedKernel.ValueObjects;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Infrastructure.Persistence.Seed;
 
 public class IdentityDbSeed(
     IUnitOfWork unitOfWork,
     IIdentityHandler identityService,
-    IRoleRepository roleRepository,
     IUserRepository userRepository,
-    IUserService userService,
-    IModeratorProfileRepository moderatorProfileRepository,
-    ICandidateProfileRepository candidateProfileRepository,
-    ICompanyProfileRepository  companyProfileRepository,
     IConfiguration configuration,
-    IManageBlogService manageBlogService,
-    IQueryBlogRepository queryBlogRepository,
-    ICommandBlogHandler commandBlogHandler
+    IEmailPasswordUserProvider emailPasswordUserProvider,
+    IRoleService roleService,
+    IRoleRepository roleRepository
+    
+    // IUserService userService,
+    // IModeratorProfileRepository moderatorProfileRepository,
+    // ICandidateProfileRepository candidateProfileRepository,
+    // ICompanyProfileRepository  companyProfileRepository,
+    // IManageBlogService manageBlogService,
+    // IQueryBlogRepository queryBlogRepository,
+    // ICommandBlogHandler commandBlogHandler
     // , IProfileAccountService accountService
 ) 
 {
@@ -41,98 +48,27 @@ public class IdentityDbSeed(
 
         string[] userRoles =
             [RoleConstants.Moderator, ];
-        var user = await AddUser(configuration["SeedData:ModeratorTestAccountEmail"]!,
+        var resultCreate = await AddUser(configuration["SeedData:ModeratorTestAccountEmail"]!,
             configuration["SeedData:ModeratorTestAccountPassword"]!,
             userRoles,
             cancellationToken, true);
 
-        if (user.Id == 0)
+        if (resultCreate.IsFailure)
         {
             await unitOfWork.RollbackTransaction(cancellationToken);
             throw new InvalidOperationException(
                 $"Creation seed user was failing! {configuration["SeedData:ModeratorTestAccountEmail"]}");
         }
        
-        await userService.UpdateRolesByEmail(user.Email, userRoles, cancellationToken);
-        
-        
+        var resultUpdateRole = await roleService.UpdateRolesByEmail(resultCreate.Value, userRoles, cancellationToken);
 
-        var moderator = await moderatorProfileRepository.GetByUserId(user.Id,
-            cancellationToken);
-
-        if (moderator == null)
+        if (resultUpdateRole.IsFailure)
         {
-            moderator = new Moderator()
-            {
-                UserId = user.Id,
-                Email = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                Name = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                GuidId = Guid.NewGuid() // = Guid.CreateVersion7()
-            };
-            moderator = await moderatorProfileRepository.Create(moderator, cancellationToken);
-
-            if (moderator.Id == 0)
-                throw new InvalidOperationException(
-                    $"Creation seed moderator was failing! {configuration["SeedData:ModeratorTestAccountEmail"]}");
-            // await manageBlogService.UserBlogSetAllow(moderator.UserId, cancellationToken,
-            //     needTransaction: false);
-        }
-
-        
-        var candidate = await candidateProfileRepository.GetByUserId(user.Id,
-            cancellationToken);
-        
-        if (candidate == null)
-        {
-            candidate = new Candidate
-            {
-                UserId = user.Id,
-                Email = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                Name = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                GuidId = Guid.NewGuid() // = Guid.CreateVersion7()
-            };
-            candidate = await candidateProfileRepository.Create(candidate, cancellationToken);
-        
-            if (candidate.Id == 0)
-                throw new InvalidOperationException(
-                    $"Creation seed candidate was failing! {configuration["SeedData:ModeratorTestAccountEmail"]}");
-            // await manageBlogService.UserBlogSetAllow(moderator.UserId, cancellationToken,
-            //     needTransaction: false);
+            throw new InvalidOperationException(resultUpdateRole.Error.Message);
         }
         
-        
-        var company = await companyProfileRepository.GetByUserId(user.Id,
-            cancellationToken);
-        
-        if (company == null)
-        {
-            company = new Company()
-            {
-                UserId = user.Id,
-                Email = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                Name = configuration["SeedData:ModeratorTestAccountEmail"]!,
-                GuidId = Guid.NewGuid() // = Guid.CreateVersion7()
-            };
-            company = await companyProfileRepository.Create(company, cancellationToken);
-        
-            if (company.Id == 0)
-                throw new InvalidOperationException(
-                    $"Creation seed candidate was failing! {configuration["SeedData:ModeratorTestAccountEmail"]}");
-            // await manageBlogService.UserBlogSetAllow(moderator.UserId, cancellationToken,
-            //     needTransaction: false);
-        }
 
-        var blog = await queryBlogRepository.GetBlogByUserId(moderator.UserId, cancellationToken);
-
-        if (blog == null)
-        {
-            blog = await commandBlogHandler.UserBlogSetAllow(moderator.UserId,
-                cancellationToken);
-        }
-
-
-        if (blog is null)
-            throw new InvalidOperationException("Creation blog was failing!");
+      
 
         await unitOfWork.CommitTransaction(cancellationToken);
     }
@@ -154,38 +90,29 @@ public class IdentityDbSeed(
         var role = await roleRepository.GetByAlias(alias, cancellationToken);
         if (role == null)
         {
-            role = new()
-            {
-                Alias = alias,
-                Title = alias
-            };
-            await roleRepository.Create(role, cancellationToken);
+            var guid = Guid.NewGuid();
+            _ = await roleRepository.Create(guid, alias, alias, cancellationToken);
         }
     }
 
 
-    public async Task<User> AddUser(string email, string password,
-        string[] aliases, CancellationToken cancellationToken
+    public async Task<Result<IdGuid>> AddUser(string email,
+        string password,
+        string[] roleAliases, CancellationToken cancellationToken
         , bool allowUserBlog = false)
     {
         var user = await userRepository.GetByEmail(email, cancellationToken);
 
         if (user == null)
         {
-            var dto = new LoginEmailRequestDto(email, password);
+        
+            var id = await emailPasswordUserProvider.Create(email, password, roleAliases, cancellationToken)
+               ;
 
-            user = await userService.CreateUserByEmail(dto,
-                aliases,
-                cancellationToken,
-                new User()
-                {
-                    EmailConfirmedStatus = true,
-                    EmailConfirmedDateChanged = DateTimeApplication.GetCurrentDate(),
-                    AllowedToCreateBlogStatus = allowUserBlog,
-                    AllowedToCreateBlogDate = DateTimeApplication.GetCurrentDate(),
-                });
+            return id;
+
         }
 
-        return user;
+        return Result<IdGuid>.Ok(user.Id);
     }
 }

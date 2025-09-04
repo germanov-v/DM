@@ -10,7 +10,7 @@ using Polly;
 
 namespace Core.Infrastructure.Persistence;
 
-public class PgsqlConnectionFactory : IDbConnectionFactory<NpgsqlConnection>
+public class PgsqlConnectionFactory : IConnectionFactory<NpgsqlConnection>
 {
 
 	private readonly SemaphoreSlim _connectionLock = new(1, 1);

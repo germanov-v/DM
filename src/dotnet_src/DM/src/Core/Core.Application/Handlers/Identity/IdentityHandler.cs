@@ -23,7 +23,7 @@ public class IdentityHandler : IIdentityHandler
 {
 
     private readonly ICryptoIdentityService _cryptoIdentityService;
-  private readonly IEmailPasswordProvider _emailPasswordProvider;
+  private readonly IEmailPasswordUserProvider _emailPasswordUserProvider;
     private readonly ISessionRepository _authTokenRepository;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
@@ -40,7 +40,7 @@ public class IdentityHandler : IIdentityHandler
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
-        IEmailPasswordProvider emailPasswordProvider, ILogger<IdentityHandler> logger, IClaimProvider claimProvider, IDateTimeProvider dateTimeProvider)
+        IEmailPasswordUserProvider emailPasswordUserProvider, ILogger<IdentityHandler> logger, IClaimProvider claimProvider, IDateTimeProvider dateTimeProvider)
     {
         _authOption = authOption.Value;
         _authTokenRepository = authTokenRepository;
@@ -48,7 +48,7 @@ public class IdentityHandler : IIdentityHandler
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
-        _emailPasswordProvider = emailPasswordProvider;
+        _emailPasswordUserProvider = emailPasswordUserProvider;
         _logger = logger;
         _claimProvider = claimProvider;
         _dateTimeProvider = dateTimeProvider;
@@ -62,7 +62,7 @@ public class IdentityHandler : IIdentityHandler
         CancellationToken cancellationToken)
     {
         
-        var resultUser = await _emailPasswordProvider.GetUserByCredential(email, password, cancellationToken);
+        var resultUser = await _emailPasswordUserProvider.GetUserByCredential(email, password, cancellationToken);
 
         
         if (resultUser.IsFailure)
@@ -71,7 +71,7 @@ public class IdentityHandler : IIdentityHandler
             return Result<AuthJwtResponseDto>.Fail(resultUser.Error with { Type = ErrorType.Forbidden });
         }
         
-        var resultRole = await _emailPasswordProvider.IsInRole(resultUser.Value, role, cancellationToken);
+        var resultRole = await _emailPasswordUserProvider.IsInRole(resultUser.Value, role, cancellationToken);
 
         if (!resultRole)
         {

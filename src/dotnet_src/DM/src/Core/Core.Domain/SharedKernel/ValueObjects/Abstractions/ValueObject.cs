@@ -1,6 +1,4 @@
-using Core.Domain.SharedKernel.Abstractions;
-
-namespace Core.Domain.SharedKernel.ValueObjects.Base;
+namespace Core.Domain.SharedKernel.ValueObjects.Abstractions;
 
 public abstract class ValueObject : IValueObject
 {

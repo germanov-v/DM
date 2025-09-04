@@ -3,11 +3,17 @@ using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.SharedKernel.Results;
+using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Application.BusinessLogic.Identity;
 
-public class EmailPasswordProvider : IEmailPasswordProvider
+public class EmailPasswordUserProvider : IEmailPasswordUserProvider
 {
+    public Task<Result<IdGuid>> Create(string email, string password, string[] roleAliases, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Result<User>> GetUserByCredential(string email, string password, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();

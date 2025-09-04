@@ -9,9 +9,9 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 
 public class User : EntityRoot<IdGuid>
 {
-    public Email? Email { get; }
+    public EmailIdentity? Email { get; }
 
-    public Phone? Phone { get;  }
+    public PhoneIdentity? Phone { get;  }
     
     public VkId? VkId { get;  }
     
@@ -38,7 +38,7 @@ public class User : EntityRoot<IdGuid>
                              ?? throw new InvalidOperationException("Contact cannot be null.");
         
 
-    private User(bool isActive, Name name, IEnumerable<Role>? roles)
+    private User(bool isActive, Name name,  IEnumerable<Role>? roles, IdGuid? id)
     {
         IsActive = isActive;
         // if (roles != null)
@@ -56,19 +56,22 @@ public class User : EntityRoot<IdGuid>
         };
 
         Name = name;
+        
+        if (id != null)
+            Id = id;
     }
 
-    public User(IdGuid idGuid, Email email, bool isActive, Name name, IEnumerable<Role>? roles = null)
-        : this(isActive, name, roles)
+    public User( EmailIdentity email, bool isActive, Name name,
+         IEnumerable<Role>? roles = null,IdGuid? id=null)
+        : this(isActive, name, roles,id)
     {
-        Id = idGuid;
         Email = email ?? throw new ArgumentNullException(nameof(email));
     }
 
-    public User(IdGuid idGuid, Phone phone, bool isActive, Name name, IEnumerable<Role>? roles = null)
-        : this(isActive, name, roles)
+    public User(PhoneIdentity phone, bool isActive, Name name, IEnumerable<Role>? roles = null,
+        IdGuid? id=null)
+        : this(isActive, name, roles,id)
     {
-        Id = idGuid;
         Phone = phone ?? throw new ArgumentNullException(nameof(phone));
     }
 
@@ -83,33 +86,17 @@ public class User : EntityRoot<IdGuid>
     public void RegisterUserByPhone(string email, string password)
     {
     }
-    // public DateTimeOffset CreatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
-    // public DateTimeOffset UpdatedDate { get; set; }  = DateTimeApplication.GetCurrentDate();
-    //
-    // public ICollection<Role> Roles { get; set; } = new List<Role>();
+  
 
 
     public bool BlockedStatus { get; set; }
 
     public DateTimeOffset? BlockedDate { get; set; }
 
-    public bool EmailConfirmedStatus { get; set; }
-    public DateTimeOffset? EmailConfirmedDateChanged { get; set; }
-
-    public DateTimeOffset? EmailConfirmedCodeDateCreated { get; set; }
-    public string EmailConfirmedCode { get; set; } = null!;
-    public DateTimeOffset? EmailConfirmedCodeDateExpired { get; set; }
 
 
-    public bool PhoneConfirmedStatus { get; set; }
 
-    public DateTime? PhoneConfirmedDateChanged { get; set; }
 
-    public string PhoneConfirmedCode { get; set; } = null!;
-
-    public DateTimeOffset? PhoneConfirmedCodeDateCreated { get; set; }
-
-    public DateTimeOffset? PhoneConfirmedCodeDateExpired { get; set; }
 
 
     #region permissions

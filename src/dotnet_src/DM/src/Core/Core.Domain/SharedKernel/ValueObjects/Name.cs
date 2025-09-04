@@ -1,8 +1,9 @@
+using Core.Domain.SharedKernel.ValueObjects.Abstractions;
 using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.SharedKernel.ValueObjects;
 
-public class Name : ValueObject<string>
+public class Name : StringValueObject
 {
     public Name(string value) : base(value)
     {

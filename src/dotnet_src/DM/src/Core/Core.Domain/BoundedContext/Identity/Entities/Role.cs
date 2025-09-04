@@ -3,12 +3,18 @@ using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Domain.BoundedContext.Identity.Entities;
 
-public class Role : EntityRoot<Id>
+public class Role : EntityRoot<IdGuid>
 {
-    public Role(string title, string alias)
+    
+    public Role(string title, string alias) 
     {
         Title = title;
         Alias = alias;
+    }
+    
+    public Role(IdGuid id,string title, string alias) : this(title, alias)
+    {
+        Id = id;
     }
 
     public string Title { get; }
