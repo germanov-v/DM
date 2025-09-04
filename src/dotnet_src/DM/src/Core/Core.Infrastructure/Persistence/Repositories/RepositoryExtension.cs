@@ -2,13 +2,24 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Core.Domain.SharedKernel.Abstractions;
 using Dapper;
 
 namespace Core.Infrastructure.Persistence.Repositories;
 
+//public delegate TResult MapDbResult<TSqlResult, TResult>(ref TSqlResult sqlResult, TResult result);
+public delegate TResult MapDbResult<TSqlResult, out TResult>(in TSqlResult sqlResult)
+    where TSqlResult:  struct ;
+
+public delegate void MapDbResultRef<TSqlResult,  TResult>(in TSqlResult sqlResult, ref TResult result)
+    where TSqlResult:  struct 
+;
+
 public static class RepositoryExtension
 {
+    
+    
     public static async IAsyncEnumerable<TResult> QueryStream<TSqlResult, TKey, TResult>(
         this IRepository _,
         string sql,
@@ -59,43 +70,74 @@ public static class RepositoryExtension
     }
 
 
-    public static async Task<IReadOnlyList<TResult>> QueryMapperList<TSqlResult, TResult>(
+    public static async Task<TResult?> QuerySingleByMapper<TSqlResult, TResult>(
         this IRepository _,
         string sql,
         DbConnection connection,
         CancellationToken cancellationToken,
-        Action<TSqlResult, Dictionary<long, TResult>> mapper,
+        MapDbResult<TSqlResult, TResult?> mapper,
         object? parameters = null,
         DbTransaction? transaction = null)
         where TSqlResult : struct
 
     {
-        var rows = await connection.QueryAsync<TSqlResult>(
+        var row = await connection.QueryFirstOrDefaultAsync<TSqlResult>(
             new CommandDefinition(sql,
                 parameters,
                 transaction: transaction,
                 cancellationToken: cancellationToken)
         );
 
-        var lookup = new Dictionary<long, TResult>();
+       
 
-        foreach (var row in rows)
-        {
-            mapper(row, lookup);
-        }
+        return mapper(in row);
+    }
+    public static async Task<IReadOnlyList<TResult>> QueryMultiByMapper<TSqlResult, TResult, TKey>(
+        this IRepository _,
+        string sql,
+        DbConnection connection,
+        CancellationToken cancellationToken,
+        // Action<TSqlResult, Dictionary<TKey, TResult>> mapper,
+        MapDbResultRef<TSqlResult, Dictionary<TKey,TResult>> mapper,
+        object? parameters = null,
+        DbTransaction? transaction = null)
+         where TSqlResult : struct
+        where TKey : IEquatable<TKey>
 
+    {
+        var rows = (await connection.QueryAsync<TSqlResult>(
+            new CommandDefinition(sql,
+                parameters,
+                transaction: transaction,
+                cancellationToken: cancellationToken)
+        )).AsList();
+
+        var lookup = new Dictionary<TKey, TResult>();
+
+        // foreach (var row in rows)
+        // {
+        //      mapper(in row, ref lookup);
+        // }
+
+       // var list = rows;
+        var span = CollectionsMarshal.AsSpan(rows);          
+        foreach (ref readonly var item in span)
+            mapper(in item, ref lookup);
+        
         return lookup.Values.ToList();
     }
 
-    public static async Task<TResult?> QueryMapperFirst<TSqlResult, TResult>(
+    public static async Task<TResult?> QueryMultiByMapperFirst<TSqlResult, TResult, TKey>(
         this IRepository repository,
         string sql,
         DbConnection connection,
         CancellationToken cancellationToken,
-        Action<TSqlResult, Dictionary<long, TResult>> mapper,
+      //  Action<TSqlResult, Dictionary<TKey, TResult>> mapper,
+        MapDbResultRef<TSqlResult, Dictionary<TKey,TResult>> mapper,
         object? parameters = null,
         DbTransaction? transaction = null)
         where TSqlResult : struct
-        => (await QueryMapperList(repository, sql, connection, cancellationToken, mapper, parameters, transaction))
+      where TKey : IEquatable<TKey>
+        => (await QueryMultiByMapper(repository, sql, connection, cancellationToken, mapper, parameters, transaction))
             .FirstOrDefault();
 }

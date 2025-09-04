@@ -5,8 +5,13 @@ using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.SharedKernel.ValueObjects;
 using Dapper;
 using Npgsql;
+//using SqlRoleRow = (long Id, System.Guid GuidId, string Name, string Alias);
+
+
 
 namespace Core.Infrastructure.Persistence.Repositories.Identity;
+
+
 
 public class RoleRepository : IRoleRepository
 {
@@ -47,6 +52,8 @@ public class RoleRepository : IRoleRepository
 
         return id;
     }
+    
+    readonly record struct SqlRoleRow(long Id, Guid GuidId, string Name, string Alias);
 
     public async Task<Role?> GetByAlias(string alias, CancellationToken cancellationToken)
     {
@@ -61,17 +68,25 @@ public class RoleRepository : IRoleRepository
         //     Alias = alias
         // });
 
-        var result = await this.QueryMapperFirst<(long Id, 
-            Guid guidId, 
-            string Name,
-            string Alias
-            ), Role>(sql,
+
+
+        // static Role Map(in (long Id, 
+        //     Guid guidId, 
+        //     string Name,
+        //     string Alias
+        //     ) r)
+        // {
+        //     var role = new Role(new IdGuid(r.Id, r.guidId), r.Name, r.Alias);
+        //     return role;
+        // }
+       
+        var result = await this.QuerySingleByMapper<SqlRoleRow, Role>(sql,
             connection,
             cancellationToken,
-            (r, dict) =>
+             static (in SqlRoleRow r) =>
             {
-                var role = new Role(new IdGuid(r.Id, r.guidId), r.Name, r.Alias);
-                dict.Add(r.Id, role);
+                var role = new Role(new IdGuid(r.Id, r.GuidId), r.Name, r.Alias);
+                return role;
             },
             new
             {
