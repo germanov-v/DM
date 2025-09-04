@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 using Core.Domain.SharedKernel.Abstractions;
@@ -8,86 +9,74 @@ namespace Core.Infrastructure.Persistence.Repositories;
 
 public static class RepositoryExtension
 {
-   //  public static async Task<Dictionary<long, TResult>.ValueCollection> QueryMapper< TSqlResult, TResult>(
-   //      this IRepository repository,
-   //      string sql,
-   //      DbConnection connection,
-   //      CancellationToken cancellationToken,
-   //      Action<TSqlResult,Dictionary<long, TResult>> mapper,
-   //      object? parameters = null,
-   //      DbTransaction? transaction = null)
-   // where TSqlResult : struct
-   //
-   //  {
-   //      var rows = await connection.QueryAsync<TSqlResult>(
-   //          new CommandDefinition(   sql,
-   //              parameters,
-   //              transaction: transaction ,
-   //              cancellationToken: cancellationToken )
-   //    
-   //      );
-   //      
-   //      var lookup = new Dictionary<long, TResult>();
-   //
-   //      foreach (var row in rows)
-   //      {
-   //          mapper(row, lookup);
-   //      }
-   //      
-   //      return lookup.Values;
-   //  }
-    
-    public static async IAsyncEnumerable<TResult> QueryMapperEnumerable<TSqlResult, TResult>(
-        this IRepository repository,
+    public static async IAsyncEnumerable<TResult> QueryStream<TSqlResult, TKey, TResult>(
+        this IRepository _,
         string sql,
+        Func<TSqlResult, TKey> keyOf,
+        Func<TSqlResult, TResult> createResult,
+        Action<TSqlResult, TResult> addToResult,
         DbConnection connection,
         [EnumeratorCancellation] CancellationToken cancellationToken,
-        Action<TSqlResult,Dictionary<long, TResult>> mapper,
         object? parameters = null,
-        DbTransaction? transaction = null)
-        where TSqlResult : struct
-
+        DbTransaction? transaction = null,
+        CommandBehavior behavior = CommandBehavior.SequentialAccess
+    )
+        where TKey : IEquatable<TKey>
+        where TResult : notnull
     {
-        var rows = await connection.QueryAsync<TSqlResult>(
-            new CommandDefinition(   sql,
-                parameters,
-                transaction: transaction ,
-                cancellationToken: cancellationToken )
-      
-        );
-        
-        var lookup = new Dictionary<long, TResult>();
+        var cmd = new CommandDefinition(sql, parameters, transaction,
+            flags: CommandFlags.None);
 
-        foreach (var row in rows)
+        await using var reader = await connection.ExecuteReaderAsync(cmd, behavior);
+
+        var parse = reader.GetRowParser<TSqlResult>();
+
+
+        var has = false;
+        TKey? key = default;
+        TResult? result = default;
+
+        while (await reader.ReadAsync(cancellationToken))
         {
-             mapper(row, lookup);
+            var row = parse(reader);
+            var currentKey = keyOf(row);
+
+            if (!has || !currentKey.Equals(key))
+            {
+                if (has) yield return result ?? throw new InvalidOperationException("Result is null");
+                key = currentKey;
+                has = true;
+                result = createResult(row);
+            }
+            else
+            {
+                addToResult(row, result!);
+            }
         }
 
-        foreach (var item in lookup.Values)
-        {
-            yield return item;
-        }
+        if (has)
+            yield return result ?? throw new InvalidOperationException("Result is null");
     }
-    
+
+
     public static async Task<IReadOnlyList<TResult>> QueryMapperList<TSqlResult, TResult>(
-        this IRepository repository,
+        this IRepository _,
         string sql,
         DbConnection connection,
         CancellationToken cancellationToken,
-        Action<TSqlResult,Dictionary<long, TResult>> mapper,
+        Action<TSqlResult, Dictionary<long, TResult>> mapper,
         object? parameters = null,
         DbTransaction? transaction = null)
         where TSqlResult : struct
 
     {
         var rows = await connection.QueryAsync<TSqlResult>(
-            new CommandDefinition(   sql,
+            new CommandDefinition(sql,
                 parameters,
-                transaction: transaction ,
-                cancellationToken: cancellationToken )
-      
+                transaction: transaction,
+                cancellationToken: cancellationToken)
         );
-        
+
         var lookup = new Dictionary<long, TResult>();
 
         foreach (var row in rows)
@@ -106,10 +95,7 @@ public static class RepositoryExtension
         Action<TSqlResult, Dictionary<long, TResult>> mapper,
         object? parameters = null,
         DbTransaction? transaction = null)
-       where TSqlResult : struct
-
-        => (await QueryMapperList(repository, sql, connection,  cancellationToken, mapper, parameters,transaction))
+        where TSqlResult : struct
+        => (await QueryMapperList(repository, sql, connection, cancellationToken, mapper, parameters, transaction))
             .FirstOrDefault();
-
-
 }
