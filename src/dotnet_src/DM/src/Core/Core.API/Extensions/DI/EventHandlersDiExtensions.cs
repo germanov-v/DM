@@ -1,10 +1,10 @@
 using System.Reflection;
 using Core.Application.EventHandlers;
 using Core.Application.EventHandlers.Notifications;
-using Core.Application.SharedServices;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Events;
 using Core.Domain.SharedKernel.Events;
+using Core.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Core.API.Extensions.DI;
@@ -71,7 +71,7 @@ public static class EventHandlersDiExtensions
         }
         var handlerRegistry = new HandlerRegistry(dictionary);
         services.AddSingleton(handlerRegistry);
-        services.AddScoped<HandlerProvider>();
+        services.AddScoped<EventHandlerProvider>();
         services.AddScoped<IChangeTracker, ChangeTracker>();
         return services;
     }

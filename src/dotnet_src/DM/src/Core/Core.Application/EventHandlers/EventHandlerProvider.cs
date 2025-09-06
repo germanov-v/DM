@@ -9,7 +9,7 @@ namespace Core.Application.EventHandlers;
 
 
 
-public sealed class HandlerProvider
+public sealed class EventHandlerProvider
 {
     
    
@@ -27,12 +27,12 @@ public sealed class HandlerProvider
     //     _serviceScopeFactory = serviceScopeFactory;
     // }
     
-    private readonly ILogger<HandlerProvider> _logger;
+    private readonly ILogger<EventHandlerProvider> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly HandlerRegistry _handlerRegistry;
-    public HandlerProvider(IServiceProvider serviceProvider, 
+    public EventHandlerProvider(IServiceProvider serviceProvider, 
         HandlerRegistry handlerRegistry, 
-        ILogger<HandlerProvider> logger)
+        ILogger<EventHandlerProvider> logger)
     {
         _serviceProvider = serviceProvider;
         _handlerRegistry = handlerRegistry;

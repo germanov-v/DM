@@ -15,7 +15,6 @@ namespace Core.Infrastructure.Persistence.Seed;
 
 public class IdentityDbSeed(
     IUnitOfWork unitOfWork,
-    IIdentityHandler identityService,
     IUserRepository userRepository,
     IConfiguration configuration,
     IEmailPasswordUserProvider emailPasswordUserProvider,

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Core.API.Extensions;
 using Core.API.Extensions.DI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,5 +35,9 @@ var apiVersion = app.MapGroup("/api/v1")
         return operation;
     });
 app.AddMapsConfigure(apiVersion, [Assembly.GetExecutingAssembly()]);
-
+if (app.Configuration.GetValue<bool>("EnableDataSeedDb"))
+{
+    var cancellationToken = app.Lifetime.ApplicationStopping;
+    await app.UseDbSeed(cancellationToken); 
+}
 app.Run();

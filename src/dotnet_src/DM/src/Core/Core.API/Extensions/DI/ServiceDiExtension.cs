@@ -1,8 +1,11 @@
 using System.Reflection;
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.Services;
-using Core.Application.SharedServices;
+using Core.Application.BusinessLogic.Identity;
+using Core.Application.Options.Identity;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Infrastructure.Persistence;
+using Core.Infrastructure.Persistence.Seed;
 using Core.Infrastructure.Services.Identity;
 
 namespace Core.API.Extensions.DI;
@@ -16,6 +19,7 @@ public static class ServiceDiExtension
 
         var assemblies = new Assembly[] {
             typeof(CryptoIdentityService).Assembly,
+            typeof(EmailPasswordUserProvider).Assembly,
           //  typeof(KafkaEventBus).Assembly,
             Assembly.GetExecutingAssembly()
         };
@@ -57,6 +61,8 @@ public static class ServiceDiExtension
         // serviceCollection.AddScoped<ReferenceSourceService>();
 
         serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        serviceCollection.AddTransient<IdentityDbSeed>();
         return serviceCollection;
     }
 }

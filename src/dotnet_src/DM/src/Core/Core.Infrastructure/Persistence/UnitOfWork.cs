@@ -1,19 +1,18 @@
 using System.Data;
 using Core.Application.Abstractions;
 using Core.Application.EventHandlers;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Events;
 
-namespace Core.Application.SharedServices;
+namespace Core.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly HandlerProvider _handlerProvider;
+    private readonly EventHandlerProvider _eventHandlerProvider;
     private readonly IChangeTracker _changeTracker;
 
-    public UnitOfWork(HandlerProvider handlerProvider, IChangeTracker changeTracker)
+    public UnitOfWork(EventHandlerProvider eventHandlerProvider, IChangeTracker changeTracker)
     {
-        _handlerProvider = handlerProvider;
+        _eventHandlerProvider = eventHandlerProvider;
         _changeTracker = changeTracker;
     }
 
@@ -25,10 +24,10 @@ public class UnitOfWork : IUnitOfWork
             {
                 foreach (var entityEvent in entity.Events)
                 {
-                    var eventType = _handlerProvider.GetInterfaceEvent(entity, entityEvent);
+                    var eventType = _eventHandlerProvider.GetInterfaceEvent(entity, entityEvent);
                     if (eventType is not null)
                     {
-                        var handler = _handlerProvider.GetHandler(eventType);
+                        var handler = _eventHandlerProvider.GetHandler(eventType);
                         await handler.Handle(entity, entityEvent, cancellationToken);
                     }
               
@@ -53,10 +52,10 @@ public class UnitOfWork : IUnitOfWork
             {
                 foreach (var entityEvent in entity.Events)
                 {
-                    var eventType = _handlerProvider.GetInterfaceEvent(entity, entityEvent);
+                    var eventType = _eventHandlerProvider.GetInterfaceEvent(entity, entityEvent);
                     if (eventType is not null)
                     {
-                        var handler = _handlerProvider.GetHandler(eventType);
+                        var handler = _eventHandlerProvider.GetHandler(eventType);
                         await handler.Handle(entity, entityEvent, cancellationToken);
                     }
               

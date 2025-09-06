@@ -2,7 +2,6 @@ using System.Reflection;
 using Core.Application.Abstractions;
 using Core.Application.Handlers.Identity;
 using Core.Application.Options.Db;
-using Core.Application.SharedServices;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Infrastructure.Persistence;
