@@ -133,7 +133,7 @@ public class UserRepository : IUserRepository
     }
 
     
-    record struct UserEmailNonPasswordSqlIdentity(long Id, 
+    record  UserEmailNonPasswordSqlIdentity(long Id, 
         Guid GuidId,
         bool IsActive,
         string Email,
@@ -148,6 +148,7 @@ public class UserRepository : IUserRepository
               SELECT 
                      us.id AS id,
                      us.guid_id AS guid_id,
+                     us.name AS name,
                      us.is_active AS is_active,
                      ue.email AS email,
                      r.id AS role_id,
@@ -162,28 +163,55 @@ public class UserRepository : IUserRepository
             ";
 
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
-        var result = await this.QueryMultiByMapperFirst<UserEmailNonPasswordSqlIdentity, User, long>(sql,
-            connection,
-            cancellationToken,
-             (in UserEmailNonPasswordSqlIdentity r, ref Dictionary<long, User> dict) =>
-            {
-                if (!dict.TryGetValue(r.Id, out var user))
-                {
-                  user = new User(new EmailIdentity(r.Email), r.IsActive,
-                      new Name(r.Name),
-                      null,
-                      new IdGuid(r.Id, r.GuidId));
-                    dict.Add(r.Id,user);
-                }
-                user.AddRole(new Role(new IdGuid(r.RoleId, r.RoleGuid), r.RoleName, r.RoleAlias));
-            },
-            new
-            {
-                Email = email
-            }
+
+        var resultSql = await connection.QueryAsync<(long Id, string Name, Guid GuidId, bool IsActive, string Email,
+            long RoleId, string RoleAlias, string RoleName, Guid RoleGuid)>(
+             new CommandDefinition(sql,
+                 new
+                 {
+                     Email = email,
+                 },
+                 cancellationToken: cancellationToken,
+                 transaction: _connectionFactory.CurrentTransaction)
         );
-        
-        return result;
+        Dictionary<long, User> dict = new();
+        foreach (var item in resultSql)
+        {
+            if (!dict.TryGetValue(item.Id, out var user))
+            {
+              user = new User(new EmailIdentity(item.Email), item.IsActive,
+                  new Name(item.Name),
+                  null,
+                  new IdGuid(item.Id, item.GuidId));
+                dict.Add(item.Id,user);
+            }
+            user.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuid), item.RoleName, item.RoleAlias));
+        }
+
+        return dict.Values.FirstOrDefault();
+
+        // var result = await this.QueryMultiByMapperFirst<UserEmailNonPasswordSqlIdentity, User, long>(sql,
+        //     connection,
+        //     cancellationToken,
+        //      (in UserEmailNonPasswordSqlIdentity r, ref Dictionary<long, User> dict) =>
+        //     {
+        //         if (!dict.TryGetValue(r.Id, out var user))
+        //         {
+        //           user = new User(new EmailIdentity(r.Email), r.IsActive,
+        //               new Name(r.Name),
+        //               null,
+        //               new IdGuid(r.Id, r.GuidId));
+        //             dict.Add(r.Id,user);
+        //         }
+        //         user.AddRole(new Role(new IdGuid(r.RoleId, r.RoleGuid), r.RoleName, r.RoleAlias));
+        //     },
+        //     new
+        //     {
+        //         Email = email
+        //     }
+        // );
+        //
+        // return result;
     }
 
     public Task<User?> GetByEmailWithProfiles(string email, CancellationToken cancellationToken, bool isConfirmed = true)
