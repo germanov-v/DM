@@ -86,6 +86,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\PatternMatching.md = docs\net\PatternMatching.md
 		docs\net\DapperQueryStream.md = docs\net\DapperQueryStream.md
 		docs\net\todo-net.md = docs\net\todo-net.md
+		docs\net\StructComareResultSql.md = docs\net\StructComareResultSql.md
+		docs\net\DelegateAllocation.md = docs\net\DelegateAllocation.md
 	EndProjectSection
 EndProject
 Global

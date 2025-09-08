@@ -1,11 +1,12 @@
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Domain.BoundedContext.Identity.Repositories;
 
 public interface IUserRepository : IRepository
 {
-    Task<User> Create(User entity, CancellationToken cancellationToken);
+    Task<IdGuid> Create(User entity, string[] roleAliases,CancellationToken cancellationToken);
 
     Task<int> Update(User entity, CancellationToken cancellationToken);
 

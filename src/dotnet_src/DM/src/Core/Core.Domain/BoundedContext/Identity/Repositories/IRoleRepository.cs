@@ -11,7 +11,7 @@ public interface IRoleRepository: IRepository
     
     Task<Role?> GetByAlias(string alias, CancellationToken cancellationToken);
     
-    Task<List<Role>> GetListByAliases(string[] aliases, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Role>> GetListByAliases(string[] aliases, CancellationToken cancellationToken);
 
     Task<int> UpdateRoles(IdGuid id,
         string[] roleAliases,

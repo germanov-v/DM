@@ -20,6 +20,6 @@ public class InitMigration250721 : Migration
 
     public override void Down()
     {
-        Execute.Script("./Migrations/250721/down_create_empty_db.sql");
+        Execute.Script("./Migrations/250821/down_create_empty_db.sql");
     }
 }

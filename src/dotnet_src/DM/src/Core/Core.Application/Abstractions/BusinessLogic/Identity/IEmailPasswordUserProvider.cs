@@ -9,10 +9,9 @@ namespace Core.Application.Abstractions.BusinessLogic.Identity;
 
 public interface IEmailPasswordUserProvider : IApplicationService
 {
-    Task<Result<IdGuid>> Create(string email, 
-        string password,
-        string[] roleAliases,
-        CancellationToken cancellationToken);
+    Task<Result<IdGuid>> Create(string email, string password, string name, string[] roleAliases, 
+        CancellationToken cancellationToken
+        , bool isActive = false);
 
     
     

@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS identity.users
     guid_id uuid not null,
     name varchar(250) not null,
     created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now()
+    updated_at timestamp with time zone default now(),
+    is_active boolean not null default false
 );
 
 
@@ -112,7 +113,7 @@ CREATE TABLE IF NOT EXISTS identity.roles
         constraint pk_roles
             primary key,
     guid_id uuid not null,
-    title text not null UNIQUE ,
+    name text not null UNIQUE ,
     alias text not null UNIQUE
 );
 

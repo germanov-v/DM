@@ -105,8 +105,8 @@ public class IdentityDbSeed(
         if (user == null)
         {
         
-            var id = await emailPasswordUserProvider.Create(email, password, roleAliases, cancellationToken)
-               ;
+            var roles = await roleRepository.GetListByAliases(roleAliases, cancellationToken);
+            var id = await emailPasswordUserProvider.Create(email, password, email, roleAliases, cancellationToken);
 
             return id;
 

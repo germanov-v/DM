@@ -14,7 +14,7 @@ public static class RepositoryDiExtension
     public static IServiceCollection AddRepositories(this IServiceCollection serviceCollection,
         IConfiguration configuration)
     {
-     
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         var dbOptions = configuration.GetConnectionString("DefaultConnection");
         //configuration.GetSection("DefaultConnection").Bind(dbOptions);
         serviceCollection.AddOptions<DbConnectionOptions>()

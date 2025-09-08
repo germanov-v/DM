@@ -6,9 +6,9 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 public class Role : EntityRoot<IdGuid>
 {
     
-    public Role(string title, string alias) 
+    public Role(string name, string alias) 
     {
-        Title = title;
+        Name = name;
         Alias = alias;
     }
     
@@ -17,7 +17,7 @@ public class Role : EntityRoot<IdGuid>
         Id = id;
     }
 
-    public string Title { get; }
+    public string Name { get; }
     
     public string Alias { get; }
 }

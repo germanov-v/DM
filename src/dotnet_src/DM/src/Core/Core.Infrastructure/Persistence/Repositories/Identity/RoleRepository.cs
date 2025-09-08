@@ -5,13 +5,11 @@ using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.SharedKernel.ValueObjects;
 using Dapper;
 using Npgsql;
+
 //using SqlRoleRow = (long Id, System.Guid GuidId, string Name, string Alias);
 
 
-
 namespace Core.Infrastructure.Persistence.Repositories.Identity;
-
-
 
 public class RoleRepository : IRoleRepository
 {
@@ -22,25 +20,27 @@ public class RoleRepository : IRoleRepository
         _connectionFactory = connectionFactory;
     }
 
-
+    private const string fieldsRole = """
+                                      role.id, role.guid_id,role.name,role.alias
+                                      """;
 
     public async Task<IdGuid> Create(Guid guidId, string name, string alias, CancellationToken cancellationToken)
     {
-        const string sql = @$"
-               INSERT INTO {SchemasDbConstants.Identity}.roles
-                       (guid_id, title, alias)
-                VALUES(@GuidId, @Title, @Alias)
-                RETURNING id, guid_id
-              ";
+        const string sql = $"""
+                             INSERT INTO {SchemasDbConstants.Identity}.roles
+                                     (guid_id, name, alias)
+                              VALUES(@GuidId, @Name, @Alias)
+                              RETURNING id , guid_id
+                            """;
 
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
 
-        var id = await connection.QuerySingleAsync<IdGuid>(new CommandDefinition(
+        var resultSql = await connection.QuerySingleAsync<(long, Guid)>(new CommandDefinition(
             sql,
             new
             {
                 GuidId = guidId,
-                Title = name,
+                Name = name,
                 Alias = alias
             },
             cancellationToken: cancellationToken,
@@ -48,42 +48,28 @@ public class RoleRepository : IRoleRepository
         ));
 
 
-       
-
-        return id;
+        return new IdGuid(resultSql.Item1, resultSql.Item2);
     }
-    
-    readonly record struct SqlRoleRow(long Id, Guid GuidId, string Name, string Alias);
+
+    record  SqlRoleRow(long Id, Guid GuidId, string Name, string Alias);
 
     public async Task<Role?> GetByAlias(string alias, CancellationToken cancellationToken)
     {
         const string sql = @$"
-              SELECT role.* FROM {SchemasDbConstants.Identity}.roles AS role
+              SELECT 
+                  {fieldsRole}
+              
+              FROM {SchemasDbConstants.Identity}.roles AS role
               WHERE role.alias=@Alias
             ";
 
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
-        // var result = await connection.QuerySingleOrDefaultAsync<Role>(sql, new
-        // {
-        //     Alias = alias
-        // });
 
 
-
-        // static Role Map(in (long Id, 
-        //     Guid guidId, 
-        //     string Name,
-        //     string Alias
-        //     ) r)
-        // {
-        //     var role = new Role(new IdGuid(r.Id, r.guidId), r.Name, r.Alias);
-        //     return role;
-        // }
-       
         var result = await this.QuerySingleByMapper<SqlRoleRow, Role>(sql,
             connection,
             cancellationToken,
-             static (in SqlRoleRow r) =>
+            static (in SqlRoleRow r) =>
             {
                 var role = new Role(new IdGuid(r.Id, r.GuidId), r.Name, r.Alias);
                 return role;
@@ -93,13 +79,50 @@ public class RoleRepository : IRoleRepository
                 Alias = alias
             }
         );
-        
         return result;
+        // var resultSql = await connection.QueryFirstOrDefaultAsync<SqlRoleRow>(
+        //     new CommandDefinition(sql,
+        //         new
+        //         {
+        //             Alias = alias
+        //         },
+        //         cancellationToken: cancellationToken
+        //         
+        //         )
+        //    
+        //     
+        // );
+        //
+        //
+        //
+        // var role = new Role(new IdGuid(resultSql.Id, resultSql.GuidId), resultSql.Name, resultSql.Alias);
     }
 
-    public Task<List<Role>> GetListByAliases(string[] aliases, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Role>> GetListByAliases(string[] aliases, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        const string sql = $"""
+              SELECT {fieldsRole} FROM {SchemasDbConstants.Identity}.roles AS role
+              WHERE role.alias = ANY(@Aliases)
+            """;
+
+        var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
+
+
+        var result = await this.QueryMultiByMapper<SqlRoleRow, Role, long>(sql,
+            connection,
+            cancellationToken,
+            static (in SqlRoleRow r, ref Dictionary<long, Role> dict) =>
+            {
+                var role = new Role(new IdGuid(r.Id, r.GuidId), r.Name, r.Alias);
+                dict.Add(r.Id, role);
+            },
+            new
+            {
+                Aliases = aliases
+            }
+        );
+
+        return result;
     }
 
     public async Task<int> UpdateRoles(IdGuid id,
@@ -117,7 +140,7 @@ public class RoleRepository : IRoleRepository
 
         const string removeRoles = $"""
 
-                                    DELETE FROM {SchemasDbConstants.Identity}.user_roles
+                                    DELETE FROM {SchemasDbConstants.Identity}.users_roles
                                            WHERE
                                                user_id=@Id;
 
@@ -127,7 +150,7 @@ public class RoleRepository : IRoleRepository
         _ = await connection.ExecuteAsync(new CommandDefinition(removeRoles,
             new
             {
-                Id = id.ToString(),
+                Id = id.ValueLong,
             },
             transaction: _connectionFactory.CurrentTransaction,
             cancellationToken: cancellationToken)
@@ -135,14 +158,14 @@ public class RoleRepository : IRoleRepository
 
 
         const string insertRoles = $"""
-                                     INSERT INTO {SchemasDbConstants.Identity}.user_roles
-                                                         (role_id, user_id)
-                                                  SELECT 
-                                                     r.id, @Id
-                                      FROM 
-                                           {SchemasDbConstants.Identity}.roles r 
-                                     WHERE r.alias = ANY(@Roles) 
-                                     """;
+                                    INSERT INTO {SchemasDbConstants.Identity}.users_roles
+                                                        (role_id, user_id)
+                                                 SELECT 
+                                                    r.id, @Id
+                                     FROM 
+                                          {SchemasDbConstants.Identity}.roles r 
+                                    WHERE r.alias = ANY(@Roles) 
+                                    """;
 
 
         var result = await connection.ExecuteAsync(new CommandDefinition(insertRoles,

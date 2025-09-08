@@ -10,6 +10,8 @@ namespace Core.Domain.BoundedContext.Identity.Entities;
 public class User : EntityRoot<IdGuid>
 {
     public EmailIdentity? Email { get; }
+    
+    public Password? Password { get; }
 
     public PhoneIdentity? Phone { get;  }
     
@@ -68,6 +70,14 @@ public class User : EntityRoot<IdGuid>
         Email = email ?? throw new ArgumentNullException(nameof(email));
     }
 
+    public User( EmailIdentity email, Password password, bool isActive, Name name,
+        IEnumerable<Role>? roles = null,IdGuid? id=null)
+        : this(isActive, name, roles,id)
+    {
+        Email = email ?? throw new ArgumentNullException(nameof(email));
+        Password = password ?? throw new ArgumentNullException(nameof(password));
+    }
+
     public User(PhoneIdentity phone, bool isActive, Name name, IEnumerable<Role>? roles = null,
         IdGuid? id=null)
         : this(isActive, name, roles,id)
@@ -75,6 +85,15 @@ public class User : EntityRoot<IdGuid>
         Phone = phone ?? throw new ArgumentNullException(nameof(phone));
     }
 
+
+    public void AddRole(Role role)
+    {
+        _roles.Add(role);
+    }
+    
+    
+    
+    //
 
     public void RegisterUserByEmail(string email,
         string password)
@@ -87,6 +106,8 @@ public class User : EntityRoot<IdGuid>
     {
     }
   
+    
+    
 
 
     public bool BlockedStatus { get; set; }
