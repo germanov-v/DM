@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Core.Constants.Database;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
@@ -142,7 +143,9 @@ public class UserRepository : IUserRepository
         string RoleAlias,
         string RoleName,
         Guid RoleGuid);
-    public async Task<User?> GetByEmail(string email, CancellationToken cancellationToken, bool isConfirmed = true)
+    
+    // TODO: порядок кортежа
+    public async Task<User?> GetByEmailV1(string email, CancellationToken cancellationToken, bool isConfirmed = true)
     {
         const string sql = @$"
               SELECT 
@@ -174,44 +177,90 @@ public class UserRepository : IUserRepository
                  cancellationToken: cancellationToken,
                  transaction: _connectionFactory.CurrentTransaction)
         );
-        Dictionary<long, User> dict = new();
-        foreach (var item in resultSql)
+        Dictionary<long, User> dict = new(1);
+       
+        
+        foreach (var  item in resultSql)
         {
-            if (!dict.TryGetValue(item.Id, out var user))
+            ref User? userRef = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, item.Id, out bool exists);
+       //   ref User? userRef = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, item.Id, out bool exists);
+
+          if (!exists)
             {
-              user = new User(new EmailIdentity(item.Email), item.IsActive,
+                userRef = new User(new EmailIdentity(item.Email), item.IsActive,
                   new Name(item.Name),
                   null,
                   new IdGuid(item.Id, item.GuidId));
-                dict.Add(item.Id,user);
+               
             }
-            user.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuid), item.RoleName, item.RoleAlias));
+            if(userRef == null)
+                 throw new InvalidOperationException($"User with email {item.Email} not mapped");
+            userRef.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuid), item.RoleName, item.RoleAlias));
         }
 
         return dict.Values.FirstOrDefault();
 
-        // var result = await this.QueryMultiByMapperFirst<UserEmailNonPasswordSqlIdentity, User, long>(sql,
-        //     connection,
-        //     cancellationToken,
-        //      (in UserEmailNonPasswordSqlIdentity r, ref Dictionary<long, User> dict) =>
-        //     {
-        //         if (!dict.TryGetValue(r.Id, out var user))
-        //         {
-        //           user = new User(new EmailIdentity(r.Email), r.IsActive,
-        //               new Name(r.Name),
-        //               null,
-        //               new IdGuid(r.Id, r.GuidId));
-        //             dict.Add(r.Id,user);
-        //         }
-        //         user.AddRole(new Role(new IdGuid(r.RoleId, r.RoleGuid), r.RoleName, r.RoleAlias));
-        //     },
-        //     new
-        //     {
-        //         Email = email
-        //     }
-        // );
-        //
-        // return result;
+       
+    }
+    
+        public async Task<User?> GetByEmail(string email, CancellationToken cancellationToken, bool isConfirmed = true)
+    {
+        const string sql = @$"
+              SELECT 
+                     us.id AS id,
+                     us.guid_id AS guid_id,
+                     us.name AS name,
+                     us.is_active AS is_active,
+                     ue.email AS email,
+                     r.id AS role_id,
+                     r.alias AS role_alias,
+                     r.name AS role_name,
+                     r.guid_id AS role_guid_id
+                            FROM {SchemasDbConstants.Identity}.users AS us
+                            INNER JOIN {SchemasDbConstants.Identity}.users_email AS ue ON us.id = ue.user_id
+                            INNER JOIN {SchemasDbConstants.Identity}.users_roles AS ur ON us.id = ur.user_id
+                            INNER JOIN {SchemasDbConstants.Identity}.roles AS r ON r.id = ur.role_id
+              WHERE ue.email=@Email
+            ";
+
+        var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
+
+        var resultSql = (await connection.QueryAsync<(long Id, 
+             Guid GuidId, string Name, bool IsActive, string Email,
+            long RoleId, string RoleAlias, string RoleName, Guid RoleGuid)>(
+             new CommandDefinition(sql,
+                 new
+                 {
+                     Email = email,
+                 },
+                 cancellationToken: cancellationToken,
+                 transaction: _connectionFactory.CurrentTransaction)
+        )).AsList();
+        Dictionary<long, User> dict = new(1);
+        
+        var span = CollectionsMarshal.AsSpan(resultSql);
+        
+        foreach (ref readonly var  item in span)
+        {
+            ref User? userRef = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, item.Id, out bool exists);
+       //   ref User? userRef = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, item.Id, out bool exists);
+
+          if (!exists)
+            {
+                userRef = new User(new EmailIdentity(item.Email), item.IsActive,
+                  new Name(item.Name),
+                  null,
+                  new IdGuid(item.Id, item.GuidId));
+               
+            }
+            if(userRef == null)
+                 throw new InvalidOperationException($"User with email {item.Email} not mapped");
+            userRef.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuid), item.RoleName, item.RoleAlias));
+        }
+
+        return dict.Values.FirstOrDefault();
+
+       
     }
 
     public Task<User?> GetByEmailWithProfiles(string email, CancellationToken cancellationToken, bool isConfirmed = true)
