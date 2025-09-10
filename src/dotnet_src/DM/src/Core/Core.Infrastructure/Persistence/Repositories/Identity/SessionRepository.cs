@@ -2,6 +2,7 @@ using Core.Constants.Database;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.SharedKernel.ValueObjects;
+using Core.Infrastructure.Persistence.Mappers;
 using Dapper;
 using Npgsql;
 
@@ -71,6 +72,7 @@ public class SessionRepository : ISessionRepository
                 VALUES(@UserId, 
                        @GuidId, 
                        @CreatedAt,
+                       @AccessToken,
                        @RefreshToken,
                        @RefreshExpired,
                        @Fingerprint,
@@ -88,10 +90,10 @@ public class SessionRepository : ISessionRepository
             {
                 UserId = entity.UserId,
                 GuidId = IdGuid.New().ValueGuid,
-                CreatedAt = entity.CreateAt,
+                CreatedAt = entity.CreateAt.Value,
                 AccessToken = entity.AccessToken,
                 RefreshToken = entity.RefreshToken,
-                RefreshExpired = entity.RefreshExpired,
+                RefreshExpired = entity.RefreshExpired.Value,
                 Fingerprint = entity.Fingerprint,
                 Ip = entity.Ip,
                 Provider = entity.AuthProvider.Name

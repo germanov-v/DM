@@ -5,6 +5,7 @@ using Core.Application.Options.Db;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Infrastructure.Persistence;
+using Core.Infrastructure.Persistence.Mappers;
 using Core.Infrastructure.Persistence.Repositories;
 using Npgsql;
 

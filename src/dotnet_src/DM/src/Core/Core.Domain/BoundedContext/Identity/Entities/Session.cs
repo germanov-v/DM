@@ -10,8 +10,8 @@ public class Session : EntityRoot<IdGuid>
     public Session(string accessToken,
         string refreshToken,
         long userId,
-        DateTimeOffset createdAt,
-        DateTimeOffset refreshExpired,
+        AppDate createdAt,
+        AppDate refreshExpired,
         IPAddress? ip, string fingerprint, AuthProvider authProvider)
     {
         AccessToken = accessToken;
@@ -32,9 +32,9 @@ public class Session : EntityRoot<IdGuid>
 
     public long UserId { get; }
 
-    public DateTimeOffset CreateAt { get; }
+    public AppDate CreateAt { get; }
 
-    public DateTimeOffset RefreshExpired { get; }
+    public AppDate RefreshExpired { get; }
 
     public string Fingerprint { get; }
 

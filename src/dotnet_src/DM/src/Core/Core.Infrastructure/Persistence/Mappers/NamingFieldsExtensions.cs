@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text;
 using Dapper;
 
-namespace Core.Infrastructure.Persistence.Repositories;
+namespace Core.Infrastructure.Persistence.Mappers;
 
 public static class NamingFieldsExtensions
 {
@@ -21,6 +21,9 @@ public static class NamingFieldsExtensions
         {
             SqlMapper.SetTypeMap(t, new SnakeCaseTypeMap(t));
         }
+        SqlMapper.AddTypeHandler(new IpAddressHandler());
+        SqlMapper.RemoveTypeMap(typeof(DateTimeOffset)); 
+        SqlMapper.AddTypeHandler(new UtcDateTimeOffsetHandler());
     }
 
      private sealed class SnakeCaseTypeMap : SqlMapper.ITypeMap

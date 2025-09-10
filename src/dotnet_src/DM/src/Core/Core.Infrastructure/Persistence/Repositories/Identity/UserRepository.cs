@@ -4,6 +4,7 @@ using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.BoundedContext.Identity.ValueObjects;
 using Core.Domain.SharedKernel.ValueObjects;
+using Core.Infrastructure.Persistence.Mappers;
 using Dapper;
 using Npgsql;
 

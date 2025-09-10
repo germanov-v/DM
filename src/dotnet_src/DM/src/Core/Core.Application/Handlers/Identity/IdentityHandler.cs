@@ -14,6 +14,7 @@ using Core.Application.Options;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.BoundedContext.Identity.ValueObjects;
+using Core.Domain.SharedKernel.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -83,12 +84,12 @@ public class IdentityHandler : IIdentityHandler
         var accessToken = _cryptoIdentityService.GenerateAccessToken(claims, dateExpiresRefresh.DateTime);
         var refreshToken = _cryptoIdentityService.GenerateRefreshToken();
 
-
+       
         var entity = new Session(accessToken: accessToken,
             refreshToken: refreshToken,
             userId: resultUser.Value.Id.ValueLong,
-            createdAt: dateCreated,
-            refreshExpired: dateExpiresRefresh,
+            createdAt: new AppDate(dateCreated),
+            refreshExpired: new AppDate(dateExpiresRefresh),
             fingerprint: fingerprint,
             ip: ip,
             authProvider: AuthProvider.Email
