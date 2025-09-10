@@ -11,7 +11,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddRepositories(builder.Configuration);
 builder.Services.AddEventHandlers();
 builder.AddAppLogging();
-
+builder.Services.AddAuthJwt(builder.Configuration);
 
 var app = builder.Build();
 
@@ -38,6 +38,7 @@ var apiVersion = app.MapGroup("/api/v1")
         return operation;
     });
 app.AddMapsConfigure(apiVersion, [Assembly.GetExecutingAssembly()]);
+app.UseAuthJwt();
 if (app.Configuration.GetValue<bool>("EnableDataSeedDb"))
 {
     var cancellationToken = app.Lifetime.ApplicationStopping;

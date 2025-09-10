@@ -15,30 +15,33 @@ public class UserRepository : IUserRepository
 
     // language=SQL
     const string QueryUserFields = """
-                                  users.id AS id,
-                                  users.guid_id AS guid_id,
-                                  users.name AS name,
-                                  users.is_active AS is_active,
-                                  users_email.email AS email,
-                                  roles.id AS role_id,
-                                  roles.alias AS role_alias,
-                                  roles.name AS role_name,
-                                  roles.guid_id AS role_guid_id
-                                  """;
+                                   users.id AS id,
+                                   users.guid_id AS guid_id,
+                                   users.name AS name,
+                                   users.created_at AS created_at,
+                                   users.is_active AS is_active,
+                                   users_email.email AS email,
+                                   roles.id AS role_id,
+                                   roles.alias AS role_alias,
+                                   roles.name AS role_name,
+                                   roles.guid_id AS role_guid_id
+                                   """;
+
     // language=SQL
     private const string QueryUserFrom = $"""
-                                               FROM {SchemasDbConstants.Identity}.users AS users
-                                               INNER JOIN {SchemasDbConstants.Identity}.users_email AS users_email ON users.id = users_email.user_id
-                                               INNER JOIN {SchemasDbConstants.Identity}.users_roles AS users_roles ON users.id = users_roles.user_id
-                                               INNER JOIN {SchemasDbConstants.Identity}.roles AS roles ON roles.id = users_roles.role_id
-                                               
-                                               """;
+                                          FROM {SchemasDbConstants.Identity}.users AS users
+                                          INNER JOIN {SchemasDbConstants.Identity}.users_email AS users_email ON users.id = users_email.user_id
+                                          INNER JOIN {SchemasDbConstants.Identity}.users_roles AS users_roles ON users.id = users_roles.user_id
+                                          INNER JOIN {SchemasDbConstants.Identity}.roles AS roles ON roles.id = users_roles.role_id
+
+                                          """;
 
 
     private record QueryUserBaseResult(
         long Id,
         string Name,
         Guid GuidId,
+        DateTimeOffset CreatedAt,
         bool IsActive,
         string Email,
         long RoleId,
@@ -46,10 +49,11 @@ public class UserRepository : IUserRepository
         string RoleName,
         Guid RoleGuidId) : ISqlFields;
 
-    private record  QueryUserEmailCredentialsResult(
+    private record QueryUserEmailCredentialsResult(
         long Id,
         string Name,
         Guid GuidId,
+        DateTimeOffset CreatedAt,
         bool IsActive,
         string Email,
         long RoleId,
@@ -62,8 +66,8 @@ public class UserRepository : IUserRepository
         DateTimeOffset ConfirmedChangedAt,
         string ConfirmedCode,
         string ConfirmedCodeExpiresAt
-    ) :  QueryUserBaseResult(Id, Name, GuidId, IsActive, Email, RoleId, RoleAlias, RoleName, RoleGuidId);
-    
+    ) : QueryUserBaseResult(Id, Name, GuidId, CreatedAt, IsActive, Email, RoleId, RoleAlias, RoleName, RoleGuidId);
+
     #endregion
 
 
@@ -94,8 +98,8 @@ public class UserRepository : IUserRepository
 
         const string sql = @$"
                INSERT INTO {SchemasDbConstants.Identity}.users
-                       (guid_id, name)
-                VALUES(@GuidId, @Name)
+                       (guid_id, name, is_active)
+                VALUES(@GuidId, @Name, @IsActive)
                 RETURNING id, guid_id
               ";
 
@@ -105,7 +109,8 @@ public class UserRepository : IUserRepository
             new
             {
                 GuidId = entity.Id.ValueGuid,
-                Name = entity.Name.Value
+                Name = entity.Name.Value,
+                IsActive = entity.IsActive,
             },
             cancellationToken: cancellationToken,
             transaction: _connectionFactory.CurrentTransaction
@@ -189,12 +194,9 @@ public class UserRepository : IUserRepository
     }
 
 
-
-
     // TODO: порядок кортежа
     public async Task<User?> GetByEmailV1(string email, CancellationToken cancellationToken, bool isConfirmed = true)
     {
-        
         const string sql = $"""
                                        SELECT 
                                         {QueryUserFields}
@@ -260,8 +262,8 @@ public class UserRepository : IUserRepository
         //         cancellationToken: cancellationToken,
         //         transaction: _connectionFactory.CurrentTransaction)
         // )).AsList();
-        
-        
+
+
         var resultSql = (await connection.QueryAsync<QueryUserBaseResult>(
             new CommandDefinition(sql,
                 new
@@ -285,7 +287,8 @@ public class UserRepository : IUserRepository
                 userRef = new User(new EmailIdentity(item.Email), item.IsActive,
                     new Name(item.Name),
                     null,
-                    new IdGuid(item.Id, item.GuidId));
+                    new IdGuid(item.Id, item.GuidId),
+                    createdAt: new AppDate(item.CreatedAt));
             }
 
             if (userRef == null)
@@ -317,9 +320,9 @@ public class UserRepository : IUserRepository
                                         {QueryUserFrom}   
                                         WHERE users_email.email=@Email
                             """;
-        
+
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
-        
+
         var resultSql = (await connection.QueryAsync<QueryUserEmailCredentialsResult>(
             new CommandDefinition(sql,
                 new
@@ -329,18 +332,22 @@ public class UserRepository : IUserRepository
                 cancellationToken: cancellationToken,
                 transaction: _connectionFactory.CurrentTransaction)
         )).AsList();
-      
-       
+
+
         User? user = null;
-        foreach ( var item in resultSql)
+        foreach (var item in resultSql)
         {
-            if (user==null)
+            if (user == null)
             {
-                user = new User(new EmailIdentity(item.Email), item.IsActive,
+                user = new User(new EmailIdentity(item.Email),
+                    item.IsActive,
                     new Name(item.Name),
-                    null,
-                    new IdGuid(item.Id, item.GuidId));
+                    id: new IdGuid(item.Id, item.GuidId),
+                    password: new Password(item.PasswordHash, item.PasswordSalt),
+                    createdAt: new AppDate(item.CreatedAt)
+                );
             }
+
             user.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuidId), item.RoleName, item.RoleAlias));
         }
 

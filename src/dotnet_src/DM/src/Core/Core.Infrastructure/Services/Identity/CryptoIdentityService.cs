@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Core.Application.Abstractions.Services;
 using Core.Application.Abstractions.Services.Identity;
-using Core.Application.Options.Identity;
+using Core.Application.Options;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -41,11 +41,11 @@ public class CryptoIdentityService(IOptions<IdentityAuthOptions> authOption)  : 
             issuer: _authOptions.Url,
             audience: _authOptions.Url,
             claims: claims,
-            //  notBefore:
+            notBefore: DateTime.Now,
             expires: expiresRefresh,
             signingCredentials: new SigningCredentials(
                 GetSymmetricSecurityKey(),
-                SecurityAlgorithms.HmacSha256
+                SecurityAlgorithms.HmacSha512
             )
         );
 

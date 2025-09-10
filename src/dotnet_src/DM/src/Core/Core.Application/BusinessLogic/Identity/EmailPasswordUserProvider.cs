@@ -32,7 +32,7 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         
         var guidId = IdGuid.New();
         var user = new User(new EmailIdentity(email), 
-            new Password(hashPassword, saltPassword),
+          
             isActive,
             new Name(name),
             roles,
@@ -55,12 +55,12 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         var (hashPassword, saltPassword, salt) = GetHashPassword(password);
         
         var guidId = IdGuid.New();
-        var user = new User(new EmailIdentity(email), 
-            new Password(hashPassword, saltPassword),
+        var user = new User(
+            new EmailIdentity(email), 
             isActive,
             new Name(name),
-            null,
-            guidId
+            id: guidId,
+            password: new Password(hashPassword, saltPassword)
         );
 
          
@@ -74,7 +74,7 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
 
     public async Task<Result<User>> GetUserByCredentialsAndRole(string email, string password, string roleAlias, CancellationToken cancellationToken)
     {
-        var (hashPassword, saltPassword, _) = GetHashPassword(password);
+     
         var user = await _userRepository.GetEmailCredentialsUserByEmail(email,  cancellationToken);
         
         if (user == null)
@@ -82,15 +82,18 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         
         if (user.Password == null)
             return Result<User>.Fail(new Error("Credentials data was not loaded", ErrorType.Failure, (int)IdentityErrorCode.PasswordNotFound));
+
+        var saltByte = _cryptoService.GetSaltBytes(user.Password.PasswordSalt);
+        var  hashPassword = _cryptoService.GetHashPassword(password, saltByte);
         
-        if(user.Password.PasswordHash!=hashPassword||user.Password.PasswordSalt!=saltPassword)
+        if(user.Password.PasswordHash!=hashPassword)
             return Result<User>.Fail(new Error("Credentials data is not valid", ErrorType.Unauthorized, (int)IdentityErrorCode.PasswordNotCorrect));
         
         
         if (!user.IsActive)
             return Result<User>.Fail(new Error("Account disabled", ErrorType.Forbidden, (int)IdentityErrorCode.AccountDisabled));
         
-        if(user.HasRole(roleAlias))
+        if(!user.HasRole(roleAlias))
             return Result<User>.Fail(new Error("Insufficient permissions", ErrorType.Forbidden, (int)IdentityErrorCode.RoleNotFound));
         
         return Result<User>.Ok(user);

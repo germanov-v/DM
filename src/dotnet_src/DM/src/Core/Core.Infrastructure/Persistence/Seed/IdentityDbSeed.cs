@@ -47,8 +47,10 @@ public class IdentityDbSeed(
 
         string[] userRoles =
             [RoleConstants.Moderator, ];
-        var resultCreate = await AddUser(configuration["SeedData:ModeratorTestAccountEmail"]!,
-            configuration["SeedData:ModeratorTestAccountPassword"]!,
+        var email = configuration["SeedData:ModeratorTestAccountEmail"]!;
+        var password = configuration["SeedData:ModeratorTestAccountPassword"]!;
+        var resultCreate = await AddUser(email,
+            password,
             userRoles,
             cancellationToken, true);
 
@@ -106,7 +108,7 @@ public class IdentityDbSeed(
         {
         
             var roles = await roleRepository.GetListByAliases(roleAliases, cancellationToken);
-            var id = await emailPasswordUserProvider.Create(email, password, email, roleAliases, cancellationToken);
+            var id = await emailPasswordUserProvider.Create(email, password, email, roleAliases, cancellationToken, true);
 
             return id;
 

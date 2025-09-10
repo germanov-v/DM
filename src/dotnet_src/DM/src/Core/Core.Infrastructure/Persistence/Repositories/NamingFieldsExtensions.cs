@@ -147,8 +147,8 @@ public static class NamingFieldsExtensions
 
                 if (i > 0 && isUpper && prevLower)
                     buffer[pos++] = '_';
-
-                if (i > 0 && isUpper && i + 1 < name.Length && char.IsLower(name[i + 1]))
+                //"HTTPServer" -> "http_server"
+                else if (i > 0 && isUpper && i + 1 < name.Length && char.IsLower(name[i + 1]))
                     buffer[pos++] = '_';
 
                 buffer[pos++] = char.ToLowerInvariant(c);

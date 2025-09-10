@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Core.Application.Options.Identity;
+namespace Core.Application.Options;
 
 public class IdentityAuthOptions
 {

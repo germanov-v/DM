@@ -1,12 +1,12 @@
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Domain.BoundedContext.Identity.Repositories;
 
 public interface ISessionRepository : IRepository
 { 
-    Task<Session> Create(Session entity, 
-        CancellationToken cancellationToken);
+    Task<IdGuid> Create(Session entity, CancellationToken cancellationToken);
 
     Task<int> Remove(Session entity, CancellationToken cancellationToken);
 

@@ -3,7 +3,7 @@ using Core.Application.Abstractions;
 using Core.Application.Abstractions.Handlers;
 using Core.Application.Dto.Identity;
 using Core.Application.Handlers.Identity;
-using Core.Application.Options.Identity;
+using Core.Application.Options;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.Constants;
 using Core.Domain.SharedKernel.Events;

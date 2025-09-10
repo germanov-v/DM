@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Constants;
 using Core.Application.Dto.Identity;
-using Core.Application.Options.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Microsoft.Extensions.Options;
 

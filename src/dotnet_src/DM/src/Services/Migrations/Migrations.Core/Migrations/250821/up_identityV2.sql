@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS identity.external_providers
             references identity.users
             on delete restrict
         PRIMARY KEY,
-    provider varchar(10),
+    provider varchar(10) not null,
     provider_user_id text NOT NULL,
     
     email_from_provider text,
@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS identity.sessions
         constraint fk_sessions_user_id
             references identity.users
             on delete restrict,
+    provider varchar(10) not null,
     guid_id uuid not null,
     created_at timestamp with time zone default now(),
     access_token text not null,

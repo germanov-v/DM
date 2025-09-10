@@ -91,6 +91,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\SqlOptimization.md = docs\net\SqlOptimization.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests.Infrastructure", "tests\Core\UnitTests\Core.UnitTests.Infrastructure\Core.UnitTests.Infrastructure.csproj", "{DC0777F3-E977-4373-8C85-C593634C8A07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{4884789C-D569-4D5C-A255-73FA95952B87}"
+	ProjectSection(SolutionItems) = preProject
+		docs\sql\UtcTimeStamp.md = docs\sql\UtcTimeStamp.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +124,8 @@ Global
 		{36DBFA7C-AC3A-4B99-AC8B-92CFF1481412} = {6C4C36B8-2562-4A3D-A099-54F106341B3B}
 		{BBFB9E18-00A4-4258-A95D-6E3BFBC8F65D} = {36DBFA7C-AC3A-4B99-AC8B-92CFF1481412}
 		{8EB1F023-10BA-46F1-AC1F-78E123304A60} = {8E87C2A1-513A-4CAB-8B36-C3865AB877D1}
+		{DC0777F3-E977-4373-8C85-C593634C8A07} = {36DBFA7C-AC3A-4B99-AC8B-92CFF1481412}
+		{4884789C-D569-4D5C-A255-73FA95952B87} = {8E87C2A1-513A-4CAB-8B36-C3865AB877D1}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CF98DB27-6111-463F-81C3-848E2C8A3AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -155,5 +164,9 @@ Global
 		{BBFB9E18-00A4-4258-A95D-6E3BFBC8F65D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBFB9E18-00A4-4258-A95D-6E3BFBC8F65D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBFB9E18-00A4-4258-A95D-6E3BFBC8F65D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC0777F3-E977-4373-8C85-C593634C8A07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC0777F3-E977-4373-8C85-C593634C8A07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC0777F3-E977-4373-8C85-C593634C8A07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC0777F3-E977-4373-8C85-C593634C8A07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

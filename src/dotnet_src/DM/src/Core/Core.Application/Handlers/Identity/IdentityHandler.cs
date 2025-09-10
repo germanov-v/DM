@@ -10,9 +10,10 @@ using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Application.Extensions;
-using Core.Application.Options.Identity;
+using Core.Application.Options;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
+using Core.Domain.BoundedContext.Identity.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -66,16 +67,14 @@ public class IdentityHandler : IIdentityHandler
 
         if (resultUser.IsFailure)
         {
-          // _logger.LogError("Auth error. Email: {Email}. ErrorData: {ErrorData}", email, resultUser.Error);
-          using (_logger.BeginErrorScope(resultUser.Error))
-          {
-              _logger.LogWarning("Auth error. Email: {Email}", email);
-          } 
-          // _logger.LogWarningApp("Auth error. Email: {Email}", resultUser.Error, email);
-           return Result<AuthJwtResponseDto>.Fail(resultUser.Error with { Type = ErrorType.Unauthorized, Code = ErrorCode.Unknown});
-        }
+            using (_logger.BeginErrorScope(resultUser.Error))
+            {
+                _logger.LogWarning("Auth error. Email: {Email}", email);
+            }
 
-      
+            return Result<AuthJwtResponseDto>.Fail(new Error(ErrorMessagePublic.AuthenticationFailed,
+                ErrorType.Unauthorized));
+        }
 
 
         var dateCreated = _dateTimeProvider.OffsetNow;
@@ -88,14 +87,14 @@ public class IdentityHandler : IIdentityHandler
         var entity = new Session(accessToken: accessToken,
             refreshToken: refreshToken,
             userId: resultUser.Value.Id.ValueLong,
-            dateCreated: dateCreated,
+            createdAt: dateCreated,
             refreshExpired: dateExpiresRefresh,
             fingerprint: fingerprint,
-            ip: ip
+            ip: ip,
+            authProvider: AuthProvider.Email
         );
 
-        // await _authTokenRepository.Create(entity, cancellationToken);
-        // var session = await _authTokenRepository.Create(entity, cancellationToken);
+      
         _ = await _authTokenRepository.Create(entity, cancellationToken);
 
         var result = new AuthJwtResponseDto(accessToken, refreshToken, _authOption.AccessTokenLifetime,

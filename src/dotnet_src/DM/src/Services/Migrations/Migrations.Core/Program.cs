@@ -25,8 +25,9 @@ class Program
            
         using var scope = serviceProvider.CreateScope();
         var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-      
-             runner.MigrateUp();
-        // runner.MigrateDown(0);
+       
+      //  runner.MigrateDown(0); 
+        runner.MigrateUp();
+       
     }
 }
