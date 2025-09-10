@@ -26,16 +26,26 @@ public static class LoggerExtension
 
     public static IDisposable? BeginErrorScope(this ILogger logger, Error error)
     {
-        var scope = logger.BeginScope(new Dictionary<string, object?>
+        var scope = logger.BeginScope(new 
         {
-            ["app.error.message"] = error.Message,
-            ["app.error.type"] = error.Type.ToString(),
-            ["app.error.code"] = error.Code.ToString(),
-            ["traceId"] = Activity.Current?.TraceId.ToString(),
-            ["spanId"] = Activity.Current?.SpanId.ToString()
+            AppErrorMessage = error.Message,
+            AppErrorType = error.Type.ToString(),
+            AppErrorCode = error.Code.ToString(),
+            traceId = Activity.Current?.TraceId.ToString(),
+            spanId = Activity.Current?.SpanId.ToString()
         });
 
-
+        // var scopeState = new List<KeyValuePair<string, object>>(5)
+        // {
+        //     new("app.error.message", error.Message),
+        //     new("app.error.type",    error.Type.ToString()),
+        //     new("app.error.code",    error.Code),
+        //     new("traceId",           Activity.Current?.TraceId.ToString() ?? ""),
+        //     new("spanId",            Activity.Current?.SpanId.ToString() ?? "")
+        // };
+        // var scope = logger.BeginScope(scopeState);
+        
+        
         var created = false;
         var activity = Activity.Current;
 
@@ -58,8 +68,12 @@ public static class LoggerExtension
                 ["app.error.code"]=error.Code,
             }));
         }
-        
-        return created ?new ScopeWithActivity(scope, activity): scope;
+
+
+        if (activity is not null)
+            return new ScopeWithActivity(scope, activity);
+
+        return scope;
     }
 
 

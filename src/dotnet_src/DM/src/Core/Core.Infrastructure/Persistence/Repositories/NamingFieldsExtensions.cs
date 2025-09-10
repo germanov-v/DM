@@ -106,6 +106,7 @@ public static class NamingFieldsExtensions
         //  GuidId -> guid_id, URLValue -> url_value, ID -> id
         private static string ToSnakeCase(string name)
         {
+            return ToSnakeCaseStack(name);
             if (string.IsNullOrEmpty(name)) return name;
 
             var sb = new StringBuilder(name.Length + 8);
@@ -119,7 +120,7 @@ public static class NamingFieldsExtensions
                 if (i > 0 && isUpper && prevLower)
                     sb.Append('_');
 
-                // Разрывы между акронимами: "HTTPServer" -> "http_server"
+                // "HTTPServer" -> "http_server"
                 if (i > 0 && isUpper && i + 1 < name.Length && char.IsLower(name[i + 1]))
                     sb.Append('_');
 
@@ -128,6 +129,33 @@ public static class NamingFieldsExtensions
             }
 
             return sb.ToString();
+        }
+        
+        private static string ToSnakeCaseStack(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return name;
+
+          
+            Span<char> buffer = stackalloc char[name.Length + 8];
+            var pos = 0;
+            var prevLower = false;
+
+            for (int i = 0; i < name.Length; i++)
+            {
+                var c = name[i];
+                var isUpper = char.IsUpper(c);
+
+                if (i > 0 && isUpper && prevLower)
+                    buffer[pos++] = '_';
+
+                if (i > 0 && isUpper && i + 1 < name.Length && char.IsLower(name[i + 1]))
+                    buffer[pos++] = '_';
+
+                buffer[pos++] = char.ToLowerInvariant(c);
+                prevLower = char.IsLetter(c) && !isUpper;
+            }
+
+            return new string(buffer[..pos]); 
         }
 
         private sealed class SimpleMemberMap : SqlMapper.IMemberMap
