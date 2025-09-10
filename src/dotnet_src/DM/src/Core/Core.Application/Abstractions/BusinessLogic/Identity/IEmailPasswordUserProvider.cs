@@ -13,9 +13,10 @@ public interface IEmailPasswordUserProvider : IApplicationService
         CancellationToken cancellationToken
         , bool isActive = false);
 
+    Task<Result<User>> GetUserByCredentialsAndRole(string email, string password, string roleAlias,
+        CancellationToken cancellationToken);
     
-    
-    Task<Result<User>> GetUserByCredential(string email, string password, CancellationToken cancellationToken);
+
     Task<DomainResult<User>> GetUserByCredential(string email, CancellationToken cancellationToken);
 
     Task<bool> IsInRole(User user, string role, CancellationToken cancellationToken);

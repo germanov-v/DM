@@ -12,6 +12,9 @@ public class Result
 
     protected Result(bool isSuccess, Error error)
     {
+
+        if (isSuccess) throw new ArgumentException("Success result cannot have error");
+        
         if (error.Type==ErrorType.None)
             throw new ArgumentException($"{nameof(error)}.{nameof(error.Type)}", nameof(error));
        
@@ -58,7 +61,7 @@ public sealed class Result<T> : Result
     public static Result<T> Ok(T value) => new(value);
     public new static Result<T> Fail(Error error) => new(error);
 
-    public bool TryGetValue([NotNullWhen(false)] out T? value)
+    public bool TryGetValue([NotNullWhen(true)] out T? value)
     {
         value = _value;
         return IsSuccess;

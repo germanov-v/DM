@@ -5,6 +5,7 @@ using Core.Application.Options.Db;
 using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Infrastructure.Persistence;
+using Core.Infrastructure.Persistence.Repositories;
 using Npgsql;
 
 namespace Core.API.Extensions.DI;
@@ -15,6 +16,8 @@ public static class RepositoryDiExtension
         IConfiguration configuration)
     {
         Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+        NamingFieldsExtensions.MapDapper();
+        
         var dbOptions = configuration.GetConnectionString("DefaultConnection");
         //configuration.GetSection("DefaultConnection").Bind(dbOptions);
         serviceCollection.AddOptions<DbConnectionOptions>()

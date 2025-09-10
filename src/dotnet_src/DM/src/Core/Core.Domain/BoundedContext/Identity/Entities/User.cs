@@ -91,9 +91,20 @@ public class User : EntityRoot<IdGuid>
         _roles.Add(role);
     }
     
+    public bool HasRole(string alias)
+    {
+        foreach (var item in _roles)
+        {
+            if(item.Alias == alias)
+                return true;
+        }
+        return false;
+    }
     
     
-    //
+  
+    /// //////
+
 
     public void RegisterUserByEmail(string email,
         string password)

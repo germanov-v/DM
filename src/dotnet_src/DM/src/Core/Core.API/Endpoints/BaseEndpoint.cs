@@ -25,6 +25,7 @@ public abstract class BaseEndpoint : IEndpoint
         {
             ErrorType.Validation => (StatusCodes.Status422UnprocessableEntity, "Validation Error",
                 "https://httpstatuses.com/422"),
+            ErrorType.Unauthorized => (StatusCodes.Status401Unauthorized, "Unauthorized", "https://httpstatuses.com/401"),
             ErrorType.NotFound => (StatusCodes.Status404NotFound, "Not Found", "https://httpstatuses.com/404"),
             ErrorType.Conflict => (StatusCodes.Status409Conflict, "Conflict", "https://httpstatuses.com/409"),
             ErrorType.Forbidden => (StatusCodes.Status403Forbidden, "Forbidden", "https://httpstatuses.com/403"),

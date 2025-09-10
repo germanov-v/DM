@@ -48,10 +48,11 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         , bool isActive = false)
     {
         
-        var salt = _cryptoService.CreateSalt();
-        var hashPassword = _cryptoService.GetHashPassword(password,salt);
-        var saltPassword = _cryptoService.GetSaltStr(salt);
-        
+        // var salt = _cryptoService.CreateSalt();
+        // var hashPassword = _cryptoService.GetHashPassword(password,salt);
+        // var saltPassword = _cryptoService.GetSaltStr(salt);
+
+        var (hashPassword, saltPassword, salt) = GetHashPassword(password);
         
         var guidId = IdGuid.New();
         var user = new User(new EmailIdentity(email), 
@@ -71,9 +72,28 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
 
    
 
-    public async Task<Result<User>> GetUserByCredential(string email, string password, CancellationToken cancellationToken)
+    public async Task<Result<User>> GetUserByCredentialsAndRole(string email, string password, string roleAlias, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var (hashPassword, saltPassword, _) = GetHashPassword(password);
+        var user = await _userRepository.GetEmailCredentialsUserByEmail(email,  cancellationToken);
+        
+        if (user == null)
+            return Result<User>.Fail(new Error("Credentials data is not valid or not found", ErrorType.Unauthorized, (int)IdentityErrorCode.EmailNotFound));
+        
+        if (user.Password == null)
+            return Result<User>.Fail(new Error("Credentials data was not loaded", ErrorType.Failure, (int)IdentityErrorCode.PasswordNotFound));
+        
+        if(user.Password.PasswordHash!=hashPassword||user.Password.PasswordSalt!=saltPassword)
+            return Result<User>.Fail(new Error("Credentials data is not valid", ErrorType.Unauthorized, (int)IdentityErrorCode.PasswordNotCorrect));
+        
+        
+        if (!user.IsActive)
+            return Result<User>.Fail(new Error("Account disabled", ErrorType.Forbidden, (int)IdentityErrorCode.AccountDisabled));
+        
+        if(user.HasRole(roleAlias))
+            return Result<User>.Fail(new Error("Insufficient permissions", ErrorType.Forbidden, (int)IdentityErrorCode.RoleNotFound));
+        
+        return Result<User>.Ok(user);
     }
 
     public Task<DomainResult<User>> GetUserByCredential(string email, CancellationToken cancellationToken)
@@ -84,5 +104,13 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
     public async Task<bool> IsInRole(User user, string role, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    private (string hash, string salt, byte[] saltBytes) GetHashPassword(string password)
+    {
+        var salt = _cryptoService.CreateSalt();
+        var hashPassword = _cryptoService.GetHashPassword(password,salt);
+        var saltPassword = _cryptoService.GetSaltStr(salt);
+        return (hashPassword, saltPassword, salt);
     }
 }

@@ -32,7 +32,8 @@ public class IdentityEndpoint : BaseEndpoint
         HttpContext httpContext,
         IOptions<IdentityAuthOptions> authOption,
         CancellationToken cancellationToken
-    )=> await WebAuthenticationByEmail(dto, handler, RoleConstants.Moderator, httpContext, authOption, cancellationToken);
+    )
+        => await WebAuthenticationByEmail(dto, handler, RoleConstants.Moderator, httpContext, authOption, cancellationToken);
 
     public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebAuthenticationByEmail(
         [FromBody] LoginEmailRequestDto dto,

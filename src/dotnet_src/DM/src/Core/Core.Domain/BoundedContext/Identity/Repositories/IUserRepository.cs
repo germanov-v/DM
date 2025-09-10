@@ -21,5 +21,11 @@ public interface IUserRepository : IRepository
 
     Task<User?> GetByEmailWithProfiles(string email, CancellationToken cancellationToken, bool isConfirmed = true);
     
-    Task<User?> GetByEmailAndHashPassword(string email, string passwordHash, CancellationToken cancellationToken);
+    /// <summary>
+    /// Проверяем пользователя
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<User?> GetEmailCredentialsUserByEmail(string email, CancellationToken cancellationToken);
 }
