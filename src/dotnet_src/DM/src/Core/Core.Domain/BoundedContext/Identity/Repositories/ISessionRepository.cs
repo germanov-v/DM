@@ -8,10 +8,12 @@ public interface ISessionRepository : IRepository
 { 
     Task<IdGuid> Create(Session entity, CancellationToken cancellationToken);
 
-    Task<int> Remove(Session entity, CancellationToken cancellationToken);
+    Task<int> RemoveById(long id, CancellationToken cancellationToken);
 
     Task<Session?> GetByRefreshTokenFingerprint(string refreshToken,
-        string fingerPrint,
+        string? fingerPrint,
         DateTimeOffset actualDate, CancellationToken cancellationToken
     );
+
+
 }

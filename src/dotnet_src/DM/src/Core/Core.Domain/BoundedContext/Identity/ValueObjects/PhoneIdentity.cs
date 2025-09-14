@@ -4,7 +4,7 @@ using Core.Domain.SharedKernel.ValueObjects.Base;
 
 namespace Core.Domain.BoundedContext.Identity.ValueObjects;
 
-public class PhoneIdentity : Phone
+public sealed class PhoneIdentity : Phone
 {
     public bool PhoneConfirmedStatus { get;  }
 

@@ -15,21 +15,38 @@ public class UserRepository : IUserRepository
     #region Fields Sql
 
     // language=SQL
+    
     const string QueryUserFields = """
-                                   users.id AS id,
-                                   users.guid_id AS guid_id,
-                                   users.name AS name,
-                                   users.created_at AS created_at,
-                                   users.is_active AS is_active,
-                                   users_email.email AS email,
-                                   roles.id AS role_id,
-                                   roles.alias AS role_alias,
-                                   roles.name AS role_name,
-                                   roles.guid_id AS role_guid_id
+                                        users.id AS id,
+                                        users.guid_id AS guid_id,
+                                        users.name AS name,
+                                        users.created_at AS created_at,
+                                        users.is_confirmed AS is_confirmed,
+                                        users.confirmed_changed_at AS confirmed_changed_at,
+                                        users.is_blocked AS is_blocked,
+                                        users.blocked_changed_at AS blocked_changed_at,          
+                                        users.blocked_reason_code AS blocked_reason_code,
+                                        users.blocked_reason AS blocked_reason,             
+                                        
+                                        roles.id AS role_id,
+                                        roles.alias AS role_alias,
+                                        roles.name AS role_name,
+                                        roles.guid_id AS role_guid_id
+                                        """;
+    
+    private const string QueryUserFrom = $"""
+                                               FROM {SchemasDbConstants.Identity}.users AS users
+                                               INNER JOIN {SchemasDbConstants.Identity}.users_roles AS users_roles ON users.id = users_roles.user_id
+                                               INNER JOIN {SchemasDbConstants.Identity}.roles AS roles ON roles.id = users_roles.role_id
+                                           """;
+    
+    const string QueryUserEmailFields = $"""
+                                   {QueryUserFields},     
+                                   users_email.email AS email
                                    """;
 
     // language=SQL
-    private const string QueryUserFrom = $"""
+    private const string QueryUserEmailFrom = $"""
                                           FROM {SchemasDbConstants.Identity}.users AS users
                                           INNER JOIN {SchemasDbConstants.Identity}.users_email AS users_email ON users.id = users_email.user_id
                                           INNER JOIN {SchemasDbConstants.Identity}.users_roles AS users_roles ON users.id = users_roles.user_id
@@ -38,12 +55,17 @@ public class UserRepository : IUserRepository
                                           """;
 
 
-    private record QueryUserBaseResult(
+    private record QueryUserEmailBaseResult(
         long Id,
         string Name,
         Guid GuidId,
         DateTimeOffset CreatedAt,
-        bool IsActive,
+        bool IsConfirmed,
+        DateTimeOffset ConfirmedChangedAt,
+        bool IsBlocked,
+        DateTimeOffset BlockedChangedAt,
+        int?  BlockedReasonCode,
+        string BlockedReason,
         string Email,
         long RoleId,
         string RoleAlias,
@@ -55,7 +77,12 @@ public class UserRepository : IUserRepository
         string Name,
         Guid GuidId,
         DateTimeOffset CreatedAt,
-        bool IsActive,
+        bool IsConfirmed,
+        DateTimeOffset ConfirmedChangedAt,
+        bool IsBlocked,
+        DateTimeOffset BlockedChangedAt,
+        int?  BlockedReasonCode,
+        string BlockedReason,
         string Email,
         long RoleId,
         string RoleAlias,
@@ -63,11 +90,13 @@ public class UserRepository : IUserRepository
         Guid RoleGuidId,
         string PasswordHash,
         string PasswordSalt,
-        bool IsConfirmed,
-        DateTimeOffset ConfirmedChangedAt,
+        bool EmailIsConfirmed,
+        DateTimeOffset EmailConfirmedChangedAt,
         string ConfirmedCode,
         string ConfirmedCodeExpiresAt
-    ) : QueryUserBaseResult(Id, Name, GuidId, CreatedAt, IsActive, Email, RoleId, RoleAlias, RoleName, RoleGuidId);
+    ) : QueryUserEmailBaseResult(Id, Name, GuidId, CreatedAt, IsConfirmed, ConfirmedChangedAt,
+        IsBlocked, BlockedChangedAt, BlockedReasonCode, BlockedReason,
+        Email, RoleId, RoleAlias, RoleName, RoleGuidId);
 
     #endregion
 
@@ -99,8 +128,9 @@ public class UserRepository : IUserRepository
 
         const string sql = @$"
                INSERT INTO {SchemasDbConstants.Identity}.users
-                       (guid_id, name, is_active)
-                VALUES(@GuidId, @Name, @IsActive)
+                       (guid_id, name, created_at, updated_at, is_confirmed,
+                        confirmed_changed_at, is_blocked, blocked_changed_at)
+                VALUES(@GuidId, @Name, @CreatedAt, now(), @IsConfirmed, @ConfirmedChangedAt, @IsBlocked, @BlockedChangedAt)
                 RETURNING id, guid_id
               ";
 
@@ -111,7 +141,11 @@ public class UserRepository : IUserRepository
             {
                 GuidId = entity.Id.ValueGuid,
                 Name = entity.Name.Value,
-                IsActive = entity.IsActive,
+                CreatedAt = entity.CreatedAt.Value,
+                IsConfirmed = entity.Confirmed.Value,
+                ConfirmedChangedAt = entity.Confirmed.ChangedAt,
+                IsBlocked = entity.IsBlocked,
+                BlockedChangedAt = entity.Blocked.ChangedAt
             },
             cancellationToken: cancellationToken,
             transaction: _connectionFactory.CurrentTransaction
@@ -184,9 +218,51 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public Task<User?> GetById(long id, CancellationToken cancellationToken)
+    public async Task<User?> GetById(long id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // language=sql
+        const string sql = $"""
+                                       SELECT 
+                                        {QueryUserFields}
+                                        {QueryUserFrom}   
+                                        WHERE users.id=@Id
+                            """;
+
+        var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
+
+       
+
+
+        var resultSql = (await connection.QueryAsync<QueryUserEmailBaseResult>(
+            new CommandDefinition(sql,
+                new
+                {
+                    Id = id,
+                },
+                cancellationToken: cancellationToken,
+                transaction: _connectionFactory.CurrentTransaction)
+        )).AsList();
+       
+        User? user = null;
+
+        foreach (var item in resultSql)
+        {
+            if (user == null)
+            {
+                var confirmed = new Status(item.IsConfirmed, item.ConfirmedChangedAt);
+                var blocked = new BlockStatus(item.IsBlocked, item.BlockedChangedAt, item.BlockedReasonCode, item.BlockedReason);
+                var createdAt = new AppDate(item.CreatedAt);
+                user = new User(confirmed: confirmed,
+                    blockStatus: blocked,
+                    createdAt: createdAt,
+                    name:   new Name(item.Name),
+                    id: new IdGuid(item.Id, item.GuidId),
+                    roles: null);
+            }
+            user.AddRole(new Role(new IdGuid(item.RoleId, item.RoleGuidId), item.RoleName, item.RoleAlias));
+        }
+
+        return user;
     }
 
     public Task<User?> GetByGuidId(Guid guidId, CancellationToken cancellationToken, bool isConfirmed = true)
@@ -201,13 +277,13 @@ public class UserRepository : IUserRepository
         const string sql = $"""
                                        SELECT 
                                         {QueryUserFields}
-                                        {QueryUserFrom}  
+                                        {QueryUserEmailFrom}  
                             WHERE users_email.email=@Email
                             """;
 
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
 
-        var resultSql = await connection.QueryAsync<QueryUserBaseResult>(
+        var resultSql = await connection.QueryAsync<QueryUserEmailBaseResult>(
             new CommandDefinition(sql,
                 new
                 {
@@ -226,10 +302,12 @@ public class UserRepository : IUserRepository
 
             if (!exists)
             {
-                userRef = new User(new EmailIdentity(item.Email), item.IsActive,
+                userRef = new User(new EmailIdentity(item.Email), new Status(item.IsConfirmed, item.ConfirmedChangedAt),
+                    new BlockStatus(item.IsBlocked, item.BlockedChangedAt, item.BlockedReasonCode, item.BlockedReason),
+                    
                     new Name(item.Name),
-                    null,
-                    new IdGuid(item.Id, item.GuidId));
+                    new AppDate(item.CreatedAt),
+                    id: new IdGuid(item.Id, item.GuidId));
             }
 
             if (userRef == null)
@@ -242,30 +320,20 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByEmail(string email, CancellationToken cancellationToken, bool isConfirmed = true)
     {
+        // language=sql
         const string sql = $"""
                                        SELECT 
-                                        {QueryUserFields}
-                                        {QueryUserFrom}   
+                                        {QueryUserEmailFields}
+                                        {QueryUserEmailFrom}   
                                         WHERE users_email.email=@Email
                             """;
 
         var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
 
-        // var resultSql = (await connection.QueryAsync<
-        //     (long Id,
-        //     Guid GuidId, string Name, bool IsActive, string Email,
-        //     long RoleId, string RoleAlias, string RoleName, Guid RoleGuid)>(
-        //     new CommandDefinition(sql,
-        //         new
-        //         {
-        //             Email = email,
-        //         },
-        //         cancellationToken: cancellationToken,
-        //         transaction: _connectionFactory.CurrentTransaction)
-        // )).AsList();
+       
 
 
-        var resultSql = (await connection.QueryAsync<QueryUserBaseResult>(
+        var resultSql = (await connection.QueryAsync<QueryUserEmailBaseResult>(
             new CommandDefinition(sql,
                 new
                 {
@@ -285,11 +353,12 @@ public class UserRepository : IUserRepository
 
             if (!exists)
             {
-                userRef = new User(new EmailIdentity(item.Email), item.IsActive,
+                userRef = new User(new EmailIdentity(item.Email),  new Status(item.IsConfirmed, item.ConfirmedChangedAt),
+                    new BlockStatus(item.IsBlocked, item.BlockedChangedAt, item.BlockedReasonCode, item.BlockedReason),
                     new Name(item.Name),
-                    null,
-                    new IdGuid(item.Id, item.GuidId),
-                    createdAt: new AppDate(item.CreatedAt));
+                    createdAt: new AppDate(item.CreatedAt),
+                    id: new IdGuid(item.Id, item.GuidId)
+                    );
             }
 
             if (userRef == null)
@@ -311,14 +380,14 @@ public class UserRepository : IUserRepository
         // language=sql
         const string sql = $"""
                                        SELECT 
-                                        {QueryUserFields},
+                                        {QueryUserEmailFields},
                                         users_email.password_hash as password_hash,
                                         users_email.password_salt as password_salt,
                                         users_email.is_confirmed as is_confirmed,
                                         users_email.confirmed_changed_at as confirmed_changed_at,
                                         users_email.confirmed_code as confirmed_code,
                                         users_email.confirmed_code_expires_at as confirmed_code_expires_at
-                                        {QueryUserFrom}   
+                                        {QueryUserEmailFrom}   
                                         WHERE users_email.email=@Email
                             """;
 
@@ -341,7 +410,8 @@ public class UserRepository : IUserRepository
             if (user == null)
             {
                 user = new User(new EmailIdentity(item.Email),
-                    item.IsActive,
+                    new Status(item.IsConfirmed, item.ConfirmedChangedAt),
+                    new BlockStatus(item.IsBlocked, item.BlockedChangedAt, item.BlockedReasonCode, item.BlockedReason),
                     new Name(item.Name),
                     id: new IdGuid(item.Id, item.GuidId),
                     password: new Password(item.PasswordHash, item.PasswordSalt),

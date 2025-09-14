@@ -15,7 +15,7 @@ public enum ErrorType
     Unauthorized
 }
 
-public sealed record Error(string Message, ErrorType Type = ErrorType.None, int Code=(int)ErrorCode.Unknown)
+public sealed record Error(string Message, ErrorType Type = ErrorType.None, int Code=ErrorCode.Unknown)
 {
     public static Error None => new(string.Empty);
 }

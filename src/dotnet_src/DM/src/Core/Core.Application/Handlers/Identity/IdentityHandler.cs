@@ -10,6 +10,7 @@ using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
 using Core.Application.Dto.Identity;
 using Core.Application.Extensions;
+using Core.Application.Handlers.Identity.Errors;
 using Core.Application.Options;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
@@ -24,7 +25,7 @@ public class IdentityHandler : IIdentityHandler
 {
     private readonly ICryptoIdentityService _cryptoIdentityService;
     private readonly IEmailPasswordUserProvider _emailPasswordUserProvider;
-    private readonly ISessionRepository _authTokenRepository;
+    private readonly ISessionService _sessionService;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IdentityAuthOptions _authOption;
@@ -41,10 +42,9 @@ public class IdentityHandler : IIdentityHandler
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
         IEmailPasswordUserProvider emailPasswordUserProvider, ILogger<IdentityHandler> logger,
-        IClaimProvider claimProvider, IDateTimeProvider dateTimeProvider)
+        IClaimProvider claimProvider, IDateTimeProvider dateTimeProvider, ISessionService sessionService)
     {
         _authOption = authOption.Value;
-        _authTokenRepository = authTokenRepository;
         _cryptoIdentityService = cryptoIdentityService;
         _userRepository = userRepository;
         _roleRepository = roleRepository;
@@ -53,6 +53,7 @@ public class IdentityHandler : IIdentityHandler
         _logger = logger;
         _claimProvider = claimProvider;
         _dateTimeProvider = dateTimeProvider;
+        _sessionService = sessionService;
     }
 
     public async Task<Result<AuthJwtResponseDto>> AuthenticateByEmailPasswordRole(string email,
@@ -78,94 +79,120 @@ public class IdentityHandler : IIdentityHandler
         }
 
 
+        return await CreateJwtSessionByUser(ip, fingerprint, cancellationToken, resultUser.Value);
+    }
+
+  
+
+    public async Task<Result<AuthJwtResponseDto>> RefreshAuth(
+        string refreshToken,
+        IPAddress? ip, CancellationToken cancellationToken,
+        string? fingerprint = null)
+    {
+      
+        await _unitOfWork.StartTransaction(cancellationToken);
+        var date = _dateTimeProvider.OffsetNow.AddSeconds(-_authOption.RefreshTokenLifetime);
+        
+        var userResult = await _sessionService.GetUserBySession(
+            refreshToken,
+            fingerprint,
+            date,
+            cancellationToken
+        );
+
+       
+        
+        if (userResult.IsFailure)
+        {
+            using (_logger.BeginErrorScope(userResult.Error))
+            {
+                _logger.LogWarning("Session was not found. RefreshToken: {RefreshToken}, Fingerprint: {Fingerprint}, Date: {Date}", 
+                   refreshToken,
+                    fingerprint,
+                    date
+                );
+            }
+
+            await _unitOfWork.RollbackTransaction(cancellationToken);
+            
+            if(userResult.Error.Code==(int)IdentityErrorCode.AccountBlocked)
+                return Result<AuthJwtResponseDto>.Fail(new Error(ErrorMessagePublic.AccountBlocked,
+                    ErrorType.Forbidden));
+            
+            return Result<AuthJwtResponseDto>.Fail(new Error(ErrorMessagePublic.UpdateDataSessionFailed,
+                ErrorType.Unauthorized));
+        }
+
+
+
+        var removeResult = await _sessionService.RemoveSessionById(userResult.Value.Session.Id.ValueLong, cancellationToken);
+
+        if (removeResult.IsFailure)
+        {
+            using (_logger.BeginErrorScope(userResult.Error))
+            {
+                _logger.LogError("Removing by sessionId was failed. SessionId: {SessionId}", 
+                    userResult.Value.Session.Id.ValueLong);
+            }
+
+            await _unitOfWork.RollbackTransaction(cancellationToken);
+            return Result<AuthJwtResponseDto>.Fail(new Error(ErrorMessagePublic.UpdateDataSessionFailed,
+                ErrorType.Unauthorized));
+        }
+        
+        var resultDto  =  await CreateJwtSessionByUser(ip, fingerprint, cancellationToken, userResult.Value.User);
+        
+        await _unitOfWork.CommitTransaction(cancellationToken);
+        
+        
+        
+        return resultDto;
+    }
+    
+    private async Task<Result<AuthJwtResponseDto>> CreateJwtSessionByUser(IPAddress? ip, string? fingerprint, CancellationToken cancellationToken,
+        User user)
+    {
         var dateCreated = _dateTimeProvider.OffsetNow;
         var dateExpiresRefresh = dateCreated.AddSeconds(_authOption.RefreshTokenLifetime);
-        var claims = _claimProvider.GetClaims(resultUser.Value);
-        var accessToken = _cryptoIdentityService.GenerateAccessToken(claims, dateExpiresRefresh.DateTime);
+        var claims = _claimProvider.GetClaims(user);
+        var accessToken = _cryptoIdentityService.GenerateAccessToken(claims, dateExpiresRefresh.UtcDateTime.Date);
         var refreshToken = _cryptoIdentityService.GenerateRefreshToken();
 
        
-        var entity = new Session(accessToken: accessToken,
+        var session = new Session(accessToken: accessToken,
             refreshToken: refreshToken,
-            userId: resultUser.Value.Id.ValueLong,
+            userId: user.Id.ValueLong,
             createdAt: new AppDate(dateCreated),
-            refreshExpired: new AppDate(dateExpiresRefresh),
+            refreshTokenExpiresAt: new AppDate(dateExpiresRefresh),
             fingerprint: fingerprint,
             ip: ip,
             authProvider: AuthProvider.Email
         );
 
       
-        _ = await _authTokenRepository.Create(entity, cancellationToken);
+        var sessionResult = await _sessionService.Create(session, cancellationToken);
 
+        if (sessionResult.IsFailure)
+        {
+            using (_logger.BeginErrorScope(sessionResult.Error))
+            {
+                _logger.LogWarning("Session crate error. Session: {Session}", session);
+            }
+
+            return Result<AuthJwtResponseDto>.Fail(new Error(ErrorMessagePublic.AuthenticationFailed,
+                ErrorType.Unauthorized));
+        }
+        
         var result = new AuthJwtResponseDto(accessToken, refreshToken, _authOption.AccessTokenLifetime,
-            new AuthUserResponseDto(resultUser.Value.Id.ValueGuid,
-                resultUser.Value.Name.Value,
-                resultUser.Value.Contact
+            new AuthUserResponseDto(user.Id.ValueGuid,
+                user.Name.Value,
+                user.Contact
             )
         );
 
         return Result<AuthJwtResponseDto>.Ok(result);
     }
 
-
-    public async Task<AuthJwtResponseDto> RefreshAuth(RefreshTokenDto dto, CancellationToken cancellationToken,
-        string? refreshToken = null)
-    {
-        throw new NotImplementedException();
-        // await _unitOfWork.StartTransaction(cancellationToken);
-        // var date = DateTimeApplication.GetCurrentDate().AddSeconds(-_authOption.RefreshTokenLifetime);
-        // var authToken = await _authTokenRepository
-        //     .GetByRefreshTokenFingerprint(
-        //         dto.RefreshToken,
-        //         dto.Fingerprint,
-        //         date,
-        //         cancellationToken
-        //     );
-        //
-        //
-        // if (authToken == null)
-        //     throw new ForbiddenApplicationException("Refresh auth was failed! Token not found!",
-        //         new Dictionary<string, string>()
-        //         {
-        //             { "RefreshToken", dto.RefreshToken },
-        //             { "Fingerprint", dto.Fingerprint },
-        //             { "date", date.ToString(CultureInfo.InvariantCulture) },
-        //         });
-        //
-        // var user = await _userRepository.GetById(authToken.UserId, cancellationToken);
-        // if (user == null) throw new InvalidOperationException("Refresh auth was failed! User not found!");
-        //
-        //
-        // var result = GenerateAuthDto(user);
-        //
-        // var entity = new AuthToken()
-        // {
-        //     AccessToken = result.AccessToken,
-        //     CreatedDate = date,
-        //     RefreshToken = refreshToken ?? result.RefreshToken,
-        //     UserId = user.Id,
-        //     RefreshTokenDateExpired = date.AddSeconds(_authOption.RefreshTokenLifetime),
-        //     Fingerprint = dto.Fingerprint
-        // };
-        //
-        // //    await using var transaction = await _unitOfWork.CreateTransaction(cancellationToken, IsolationLevelConstants.IdentityBaseIsolationLevel);
-        //
-        //
-        // // await _authTokenRepository.Remove(authToken, cancellationToken, _unitOfWork.CurrentTransaction);
-        // // await _authTokenRepository.Create(entity, cancellationToken, _unitOfWork.CurrentTransaction);
-        //
-        //
-        //
-        // await _authTokenRepository.Remove(authToken, cancellationToken);
-        // await _authTokenRepository.Create(entity, cancellationToken);
-        //
-        // await _unitOfWork.CommitTransaction(cancellationToken);
-        //
-        //
-        //
-        // return result;
-    }
 
     public async Task<User?> GetUserByGuidId(Guid guid, CancellationToken cancellationToken)
         => await _userRepository.GetByGuidId(guid, cancellationToken);

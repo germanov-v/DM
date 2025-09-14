@@ -10,7 +10,7 @@ public class Status : ValueObject<bool> // IValueObject
     
     public DateTimeOffset ChangedAt { get; private set; }
 
-    public Status(bool value, DateTimeOffset changedAt) : base(false)
+    public Status(bool value, DateTimeOffset changedAt) : base(value)
     {
        ChangedAt = changedAt;
     }

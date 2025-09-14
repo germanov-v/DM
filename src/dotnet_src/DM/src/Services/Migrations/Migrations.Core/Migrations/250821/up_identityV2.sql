@@ -11,9 +11,15 @@ CREATE TABLE IF NOT EXISTS identity.users
     guid_id uuid not null,
     name varchar(250) not null,
     created_at timestamp with time zone default now(),
-    updated_at timestamp with time zone default now(),
-    is_active boolean not null default false
-);
+    updated_at timestamp with time zone default now(), -- будет нативное поле now()
+    is_confirmed boolean not null default false,
+    confirmed_changed_at timestamp with time zone default now(),
+    is_blocked boolean not null default false,
+    blocked_changed_at timestamp with time zone default now(),
+    blocked_reason_code int,
+    blocked_reason text
+
+    );
 
 
 
@@ -149,7 +155,7 @@ CREATE TABLE IF NOT EXISTS identity.sessions
     created_at timestamp with time zone default now(),
     access_token text not null,
     refresh_token text not null,
-    refresh_expired timestamp with time zone default now(),
+    refresh_token_expires_at timestamp with time zone default now(),
     fingerprint text not null,
     ip inet
 );

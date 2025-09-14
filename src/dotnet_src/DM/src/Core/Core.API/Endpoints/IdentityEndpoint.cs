@@ -23,7 +23,7 @@ public class IdentityEndpoint : BaseEndpoint
         // routeGroupBuilder.MapGet("/test", TestDdd);
 
         routeGroupBuilder.MapPost("/identity/auth/moderator", WebModeratorAuthenticationByEmail);
-        routeGroupBuilder.MapPost("/identity/refresh", RefreshJwtCookie);
+        routeGroupBuilder.MapPost("/identity/refresh", WebRefreshJwtCookie);
     }
     
     public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebModeratorAuthenticationByEmail(
@@ -79,6 +79,47 @@ public class IdentityEndpoint : BaseEndpoint
         return TypedResults.Ok(result);
     }
     
+    
+    public async Task<Results<Ok<AuthJwtResponse>, BadRequest<ProblemHttpResult>,
+        UnauthorizedHttpResult, ProblemHttpResult>> WebRefreshJwtCookie(
+        [FromBody] RefreshTokenDto dto,
+        [FromServices] IIdentityHandler handler,
+        HttpContext httpContext,
+        IOptions<IdentityAuthOptions> authOption,
+        CancellationToken cancellationToken
+    )
+    {
+       
+        if (httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            dto.RefreshToken = refreshToken;
+        }
+
+        var resultHandler = await handler.RefreshAuth(dto.RefreshToken, httpContext.Connection.RemoteIpAddress, cancellationToken);
+        
+        if (resultHandler.IsFailure)
+        {
+            return MapResultError(resultHandler, httpContext);
+        }
+        
+        var cookieOptions = new CookieOptions()
+        {
+            Expires = DateTimeOffset.Now.AddSeconds(authOption.Value.RefreshTokenLifetime),
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+        };
+        httpContext.Response.Cookies.Append(key: "refreshToken", resultHandler.Value.RefreshToken,
+            cookieOptions);
+        var result = new AuthJwtResponse(
+            resultHandler.Value.AccessToken,
+            resultHandler.Value.ExpiresIn,
+            resultHandler.Value.User
+        );
+        return TypedResults.Ok(result);
+    }
+
+    
    
     ////////////////////////////////////////////////////////////////////////////
     
@@ -106,40 +147,7 @@ public class IdentityEndpoint : BaseEndpoint
    
 
 
-    public async Task<Results<Ok<AuthJwtResponse>, BadRequest<ProblemHttpResult>,
-        UnauthorizedHttpResult, ProblemHttpResult>> RefreshJwtCookie(
-        [FromBody] RefreshTokenDto dto,
-        [FromServices] IIdentityHandler handler,
-        HttpContext httpContext,
-        IOptions<IdentityAuthOptions> authOption,
-        CancellationToken cancellationToken
-    )
-    {
-        // var refreshToken = httpContext.Request.Cookies["refreshToken"] ?? String.Empty;
-
-        if (httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
-        {
-            dto.RefreshToken = refreshToken;
-        }
-
-        var jwtResponse = await handler.RefreshAuth(dto, cancellationToken);
-        var cookieOptions = new CookieOptions()
-        {
-            Expires = DateTimeOffset.Now.AddSeconds(authOption.Value.RefreshTokenLifetime),
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        };
-        httpContext.Response.Cookies.Append(key: "refreshToken", jwtResponse.RefreshToken,
-            cookieOptions);
-        var result = new AuthJwtResponse(
-            jwtResponse.AccessToken,
-            jwtResponse.ExpiresIn,
-            jwtResponse.User
-        );
-        return TypedResults.Ok(result);
-    }
-
+   
 
     public async Task<Results<Ok<AuthJwtResponseDto>, BadRequest<ProblemHttpResult>>> AuthenticationByEmail(
         [FromBody] LoginEmailRequestDto dto,
@@ -163,5 +171,5 @@ public class IdentityEndpoint : BaseEndpoint
         [FromBody] RefreshTokenDto dto,
         [FromServices] IIdentityHandler handler,
         CancellationToken cancellationToken
-    ) => TypedResults.Ok(await handler.RefreshAuth(dto, cancellationToken));
+    ) =>   throw new NotImplementedException();// TypedResults.Ok(await handler.RefreshAuth(dto, cancellationToken));
 }

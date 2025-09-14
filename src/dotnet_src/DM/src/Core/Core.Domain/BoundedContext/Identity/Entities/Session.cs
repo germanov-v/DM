@@ -11,18 +11,21 @@ public class Session : EntityRoot<IdGuid>
         string refreshToken,
         long userId,
         AppDate createdAt,
-        AppDate refreshExpired,
-        IPAddress? ip, string fingerprint, AuthProvider authProvider)
+        AppDate refreshTokenExpiresAt,
+        IPAddress? ip, string? fingerprint, AuthProvider authProvider, IdGuid? id=null)
     {
         AccessToken = accessToken;
         RefreshToken = refreshToken;
         UserId = userId;
         CreateAt = createdAt;
-        RefreshExpired = refreshExpired;
+        RefreshTokenExpiresAt = refreshTokenExpiresAt;
         Ip = ip;
         Fingerprint = fingerprint;
         AuthProvider = authProvider;
+        if (id != null)
+            Id = id;
     }
+
 
     public string AccessToken { get; }
 
@@ -34,9 +37,9 @@ public class Session : EntityRoot<IdGuid>
 
     public AppDate CreateAt { get; }
 
-    public AppDate RefreshExpired { get; }
+    public AppDate RefreshTokenExpiresAt { get; }
 
-    public string Fingerprint { get; }
+    public string? Fingerprint { get; }
 
     public IPAddress? Ip { get; }
 }

@@ -8,15 +8,17 @@ namespace Core.Application.Abstractions.Handlers;
 
 public interface IIdentityHandler : IApplicationService
 {
-    Task<Result<AuthJwtResponseDto>> AuthenticateByEmailPasswordRole(string email,
-        string password, 
+    Task<Result<AuthJwtResponseDto>>  AuthenticateByEmailPasswordRole(string email,
+        string password,
         string role,
         IPAddress? ip,
         string fingerprint,
         CancellationToken cancellationToken);
 
-    Task<AuthJwtResponseDto> RefreshAuth(RefreshTokenDto dto, CancellationToken cancellationToken,
-        string? refreshToken  =  null);
+    Task<Result<AuthJwtResponseDto>> RefreshAuth(
+        string refreshToken,
+        IPAddress? ip, CancellationToken cancellationToken,
+        string? fingerprint = null);
 
 
     // Task<User> RegisterUserByEmail(LoginEmailRequestDto dto, string[] roleAlias,

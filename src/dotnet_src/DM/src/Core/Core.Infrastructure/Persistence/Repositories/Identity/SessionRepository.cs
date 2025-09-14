@@ -1,6 +1,8 @@
+using System.Net;
 using Core.Constants.Database;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
+using Core.Domain.BoundedContext.Identity.ValueObjects;
 using Core.Domain.SharedKernel.ValueObjects;
 using Core.Infrastructure.Persistence.Mappers;
 using Dapper;
@@ -14,36 +16,26 @@ public class SessionRepository : ISessionRepository
 
     // language=SQL
     const string QueryUserFields = """
-                                  users.id AS id,
-                                  users.guid_id AS guid_id,
-                                  users.name AS name,
-                                  users.is_active AS is_active,
-                                  users_email.email AS email,
-                                  roles.id AS role_id,
-                                  roles.alias AS role_alias,
-                                  roles.name AS role_name,
-                                  roles.guid_id AS role_guid_id
+                                 
+                            
                                   """;
     // language=SQL
     private const string QueryUserFrom = $"""
-                                               FROM {SchemasDbConstants.Identity}.users AS users
-                                               INNER JOIN {SchemasDbConstants.Identity}.users_email AS users_email ON users.id = users_email.user_id
-                                               INNER JOIN {SchemasDbConstants.Identity}.users_roles AS users_roles ON users.id = users_roles.user_id
-                                               INNER JOIN {SchemasDbConstants.Identity}.roles AS roles ON roles.id = users_roles.role_id
                                                
                                                """;
 
 
-    private record QueryUserBaseResult(
+    private record QuerySessionBaseResult(
         long Id,
-        string Name,
+        long UserId,
+        string Provider,
         Guid GuidId,
-        bool IsActive,
-        string Email,
-        long RoleId,
-        string RoleAlias,
-        string RoleName,
-        Guid RoleGuidId) : ISqlFields;
+        DateTimeOffset CreatedAt,
+        string AccessToken,
+        string RefreshToken,
+        DateTimeOffset RefreshTokenExpiresAt,
+        string Fingerprint,
+        IPAddress Ip) : ISqlFields;
 
     
     
@@ -65,7 +57,7 @@ public class SessionRepository : ISessionRepository
                         created_at,
                         access_token,
                         refresh_token,
-                        refresh_expired,
+                        refresh_token_expires_at,
                         fingerprint,
                         ip, 
                         provider)
@@ -93,10 +85,10 @@ public class SessionRepository : ISessionRepository
                 CreatedAt = entity.CreateAt.Value,
                 AccessToken = entity.AccessToken,
                 RefreshToken = entity.RefreshToken,
-                RefreshExpired = entity.RefreshExpired.Value,
-                Fingerprint = entity.Fingerprint,
+                RefreshExpired = entity.RefreshTokenExpiresAt.Value,
+                Fingerprint = entity.Fingerprint??String.Empty,
                 Ip = entity.Ip,
-                Provider = entity.AuthProvider.Name
+                Provider = entity.AuthProvider.Alias
             },
             cancellationToken: cancellationToken,
             transaction: _connectionFactory.CurrentTransaction
@@ -105,14 +97,69 @@ public class SessionRepository : ISessionRepository
         return new IdGuid(resultId.Id, resultId.GuidId);
     }
 
-    public Task<int> Remove(Session entity, CancellationToken cancellationToken)
+    public async Task<int> RemoveById(long id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        const string sql = $"""
+                           DELETE FROM {SchemasDbConstants.Identity}.sessions
+                           WHERE id = @Id
+                           """;
+        var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
+        
+        
+        
+        return await connection.ExecuteAsync(sql, new { Id = id }, transaction: _connectionFactory.CurrentTransaction);
     }
 
-    public Task<Session?> GetByRefreshTokenFingerprint(string refreshToken, string fingerPrint, DateTimeOffset actualDate,
+    public async Task<Session?> GetByRefreshTokenFingerprint(string refreshToken, string? fingerPrint, DateTimeOffset actualDate,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        
+        const string sql = $"""
+                           SELECT 
+                               id,    
+                               user_id, 
+                               guid_id,
+                               created_at,
+                               access_token,
+                               refresh_token,
+                               refresh_token_expires_at,
+                               fingerprint,
+                               ip, 
+                               provider
+                           FROM {SchemasDbConstants.Identity}.sessions 
+                           WHERE refresh_token=@RefreshToken
+                             AND fingerprint=@FingerPrint
+                           """;
+        
+        var connection = await _connectionFactory.GetCurrentConnection(cancellationToken);
+
+        var resultSql = await connection.QueryFirstOrDefaultAsync<QuerySessionBaseResult>(
+            new CommandDefinition(sql,
+                new
+                {
+                    RefreshToken = refreshToken,
+                    FingerPrint = fingerPrint??string.Empty,
+                },
+                cancellationToken: cancellationToken,
+                transaction: _connectionFactory.CurrentTransaction)
+        );
+        
+        Session? session = null;
+
+        if (resultSql != null)
+        {
+            session = new Session(resultSql.AccessToken, 
+                resultSql.RefreshToken, 
+                resultSql.UserId, 
+                createdAt: new AppDate(resultSql.CreatedAt),
+                refreshTokenExpiresAt:  new AppDate(resultSql.RefreshTokenExpiresAt),
+                ip: resultSql.Ip,
+                fingerprint: resultSql.Fingerprint,
+                authProvider:  AuthProvider.GetValue(resultSql.Provider),
+                id: new IdGuid(resultSql.Id, resultSql.GuidId));
+        }
+        
+        
+        return session;
     }
 }

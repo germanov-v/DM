@@ -1,6 +1,9 @@
 using Core.Application.Abstractions.BusinessLogic.Identity;
+using Core.Application.Abstractions.Services;
 using Core.Application.Abstractions.Services.Identity;
 using Core.Application.Common.Results;
+using Core.Application.Handlers.Identity;
+using Core.Application.Handlers.Identity.Errors;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.BoundedContext.Identity.ValueObjects;
@@ -14,34 +17,16 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
     
     private readonly IUserRepository _userRepository;
     private readonly ICryptoIdentityService _cryptoService;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public EmailPasswordUserProvider(IUserRepository userRepository, ICryptoIdentityService cryptoService)
+    public EmailPasswordUserProvider(IUserRepository userRepository, ICryptoIdentityService cryptoService, IDateTimeProvider dateTimeProvider)
     {
         _userRepository = userRepository;
         _cryptoService = cryptoService;
+        _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<IdGuid>> Create(string email, string password, string name, IEnumerable<Role> roles, CancellationToken cancellationToken
-    , bool isActive = false)
-    {
-        
-        throw new NotImplementedException();
-       var hashPassword = "";
-        var saltPassword = "";
-        
-        
-        var guidId = IdGuid.New();
-        var user = new User(new EmailIdentity(email), 
-          
-            isActive,
-            new Name(name),
-            roles,
-            guidId
-            );
-
-         
-      //  var result = await _userRepository.Create(user, cancellationToken);
-    }
+   
     
     public async Task<Result<IdGuid>> Create(string email, string password, string name, string[] roleAliases, 
         CancellationToken cancellationToken
@@ -55,12 +40,15 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         var (hashPassword, saltPassword, salt) = GetHashPassword(password);
         
         var guidId = IdGuid.New();
+        var date = _dateTimeProvider.OffsetNow;
         var user = new User(
             new EmailIdentity(email), 
-            isActive,
+            confirmed: new Status(isActive, date),
+            new BlockStatus(false,_dateTimeProvider.OffsetNow, null, null),
             new Name(name),
             id: guidId,
-            password: new Password(hashPassword, saltPassword)
+            password: new Password(hashPassword, saltPassword),
+            createdAt:  AppDate.Create()
         );
 
          
@@ -83,6 +71,9 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         if (user.Password == null)
             return Result<User>.Fail(new Error("Credentials data was not loaded", ErrorType.Failure, (int)IdentityErrorCode.PasswordNotFound));
 
+        if (user.IsBlocked)
+            return Result<User>.Fail(new Error($"Account was blocked: {user.Blocked.Reason}. Code: {user.Blocked.Code}", ErrorType.Forbidden, (int)IdentityErrorCode.AccountBlocked));
+        
         var saltByte = _cryptoService.GetSaltBytes(user.Password.PasswordSalt);
         var  hashPassword = _cryptoService.GetHashPassword(password, saltByte);
         
@@ -90,8 +81,9 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
             return Result<User>.Fail(new Error("Credentials data is not valid", ErrorType.Unauthorized, (int)IdentityErrorCode.PasswordNotCorrect));
         
         
-        if (!user.IsActive)
-            return Result<User>.Fail(new Error("Account disabled", ErrorType.Forbidden, (int)IdentityErrorCode.AccountDisabled));
+        
+        if (!user.Confirmed.Value)
+            return Result<User>.Fail(new Error("Account is not confirmed", ErrorType.Forbidden, (int)IdentityErrorCode.AccountNotConfirmed));
         
         if(!user.HasRole(roleAlias))
             return Result<User>.Fail(new Error("Insufficient permissions", ErrorType.Forbidden, (int)IdentityErrorCode.RoleNotFound));

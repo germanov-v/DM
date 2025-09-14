@@ -21,9 +21,17 @@ public class User : EntityRoot<IdGuid>
 
     public Name Name { get; private set; }
 
-    public AppDate? CreatedAt { get;  }
+    public AppDate CreatedAt { get;  }
 
-    public bool IsActive { get; private set; }
+    public bool IsActive => Confirmed.Value && !IsBlocked;
+    
+    public BlockStatus Blocked { get; private set; }
+    
+    public Status Confirmed { get; private set; }
+
+    public bool IsBlocked => Blocked.Value;
+    
+    //public bool IsConfirmed { get; private set; }
 
     public bool IsRegisterByPhone { get; private set; }
 
@@ -40,17 +48,20 @@ public class User : EntityRoot<IdGuid>
                              ?? Email?.Value
                              ?? VkId?.Value
                              ?? YandexId?.Value
+                             ?? Name?.Value
                              ?? throw new InvalidOperationException("Contact cannot be null.");
 
 
-    private User(bool isActive, Name name, IEnumerable<Role>? roles, IdGuid? id)
+    public User(Status confirmed, 
+        BlockStatus blockStatus, 
+        AppDate createdAt,
+        Name name, 
+        IEnumerable<Role>? roles, 
+        IdGuid? id)
     {
-        IsActive = isActive;
-        // if (roles != null)
-        // {
-        //     _roles = [..roles];
-        //   
-        // }
+        Confirmed = confirmed;
+        Blocked = blockStatus;
+        CreatedAt = createdAt;
 
         _roles = roles switch
         {
@@ -74,24 +85,23 @@ public class User : EntityRoot<IdGuid>
     // }
 
     public User(EmailIdentity email,
-        bool isActive,
+        Status confirmed,
+        BlockStatus blockStatus,
         Name name,
+        AppDate createdAt,
         IEnumerable<Role>? roles = null,
         IdGuid? id = null,
-        Password? password = null,
-        AppDate? createdAt = null)
-        : this(isActive, name, roles, id)
+        Password? password = null)
+        : this(confirmed,blockStatus,createdAt, name, roles, id)
     {
         Email = email ?? throw new ArgumentNullException(nameof(email));
         if (password != null)
             Password = password;
-        if (createdAt != null)
-           CreatedAt = createdAt;
     }
 
-    public User(PhoneIdentity phone, bool isActive, Name name, IEnumerable<Role>? roles = null,
+    public User(PhoneIdentity phone, Status confirmed,BlockStatus blockStatus, AppDate createdAt, Name name, IEnumerable<Role>? roles = null,
         IdGuid? id = null)
-        : this(isActive, name, roles, id)
+        : this(confirmed,blockStatus,createdAt, name, roles, id)
     {
         Phone = phone ?? throw new ArgumentNullException(nameof(phone));
     }
