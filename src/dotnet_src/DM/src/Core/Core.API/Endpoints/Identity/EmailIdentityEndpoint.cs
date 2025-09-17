@@ -1,20 +1,14 @@
-using System.Xml;
-using Core.Application.Abstractions;
 using Core.Application.Abstractions.Handlers;
 using Core.Application.Dto.Identity;
-using Core.Application.Handlers.Identity;
 using Core.Application.Options;
-using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.Constants;
-using Core.Domain.SharedKernel.Events;
-using Core.Domain.SharedKernel.ValueObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Core.API.Endpoints;
+namespace Core.API.Endpoints.Identity;
 
-public class IdentityEndpoint : BaseEndpoint
+public class EmailIdentityEndpoint : BaseEndpoint
 {
     public override void ConfigureUrlMaps(RouteGroupBuilder routeGroupBuilder, WebApplication application)
     {
@@ -24,7 +18,32 @@ public class IdentityEndpoint : BaseEndpoint
 
         routeGroupBuilder.MapPost("/identity/auth/moderator", WebModeratorAuthenticationByEmail);
         routeGroupBuilder.MapPost("/identity/refresh", WebRefreshJwtCookie);
+        
+        routeGroupBuilder.MapPost("/identity/auth/company", WebProviderAuthenticationByEmail);
+        routeGroupBuilder.MapPost("/identity/auth/company/manager", WebModeratorAuthenticationByEmail);
+
     }
+    
+    
+    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebProviderAuthenticationByEmail(
+        [FromBody] LoginEmailRequestDto dto,
+        [FromServices] IIdentityHandler handler,
+        HttpContext httpContext,
+        IOptions<IdentityAuthOptions> authOption,
+        CancellationToken cancellationToken
+    )
+        => await WebAuthenticationByEmail(dto, handler, RoleConstants.Company, httpContext, authOption, cancellationToken);
+    
+    public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebManagerProviderAuthenticationByEmail(
+        [FromBody] LoginEmailRequestDto dto,
+        [FromServices] IIdentityHandler handler,
+        HttpContext httpContext,
+        IOptions<IdentityAuthOptions> authOption,
+        CancellationToken cancellationToken
+    )
+        => await WebAuthenticationByEmail(dto, handler, RoleConstants.ManagerCompany, httpContext, authOption, cancellationToken);
+
+
     
     public async Task<Results<Ok<AuthJwtResponse>, ProblemHttpResult>> WebModeratorAuthenticationByEmail(
         [FromBody] LoginEmailRequestDto dto,

@@ -37,8 +37,8 @@ public class IdentityDbSeed(
         RoleConstants.Designer1,
         RoleConstants.Designer2,
         RoleConstants.Designer3,
-        RoleConstants.Provider,
-        RoleConstants.ManagerProvider,
+        RoleConstants.Company,
+        RoleConstants.ManagerCompany,
     };
 
 
@@ -80,12 +80,12 @@ public class IdentityDbSeed(
 
         _ = await AddUser(configuration["SeedData:Provider1TestAccountEmail"]!,
             configuration["SeedData:TestAccountPassword"]!,
-            [RoleConstants.Provider],
+            [RoleConstants.Company],
             cancellationToken);
 
         _ = await AddUser(configuration["SeedData:ManagerProvider1TestAccountEmail"]!,
             configuration["SeedData:TestAccountPassword"]!,
-            [RoleConstants.ManagerProvider],
+            [RoleConstants.ManagerCompany],
             cancellationToken);
 
         await unitOfWork.CommitTransaction(cancellationToken);

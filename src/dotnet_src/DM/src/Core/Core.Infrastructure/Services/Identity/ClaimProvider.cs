@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using Core.Application.Abstractions.Services.Identity;
-using Core.Application.Constants;
-using Core.Application.Dto.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
-using Microsoft.Extensions.Options;
 
 namespace Core.Infrastructure.Services.Identity;
 
+
+/// <summary>
+/// TODO: этот сервис точно нужен?
+/// </summary>
 public class ClaimProvider : IClaimProvider
 {
     

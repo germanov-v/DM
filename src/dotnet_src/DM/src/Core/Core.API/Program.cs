@@ -4,6 +4,8 @@ using Core.API.Extensions.DI;
 using Microsoft.Extensions.Logging.Console;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthJwt(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer(); // Minimal API
 builder.Services.AddSwaggerGen();
 
@@ -11,7 +13,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddRepositories(builder.Configuration);
 builder.Services.AddEventHandlers();
 builder.AddAppLogging();
-builder.Services.AddAuthJwt(builder.Configuration);
+
 
 var app = builder.Build();
 

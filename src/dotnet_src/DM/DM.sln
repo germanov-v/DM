@@ -91,6 +91,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{8EB1F023-10B
 		docs\net\DelegateAllocation.md = docs\net\DelegateAllocation.md
 		docs\net\SqlOptimization.md = docs\net\SqlOptimization.md
 		docs\net\NpgsqlDataSource-EXAMPLE.md = docs\net\NpgsqlDataSource-EXAMPLE.md
+		docs\net\Identity.md = docs\net\Identity.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests.Infrastructure", "tests\Core\UnitTests\Core.UnitTests.Infrastructure\Core.UnitTests.Infrastructure.csproj", "{DC0777F3-E977-4373-8C85-C593634C8A07}"

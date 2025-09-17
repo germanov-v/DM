@@ -10,6 +10,7 @@
       <Folder Include="Abstractions\Repositories\" />
       <Folder Include="Common\" />
       <Folder Include="BusinessLogic\Notifications\" />
+      <Folder Include="Constants\" />
     </ItemGroup>
 
     <ItemGroup>

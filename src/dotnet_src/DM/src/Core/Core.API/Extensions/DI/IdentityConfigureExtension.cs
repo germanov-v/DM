@@ -1,5 +1,6 @@
 using System.Security.Claims;
-using Core.Application.Constants;
+using System.Text;
+using Core.API.Constants;
 using Core.Application.Options;
 using Core.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,9 +40,9 @@ public static class IdentityConfigureExtension
                 options.TokenValidationParameters =
                     new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
-
-                        ValidateAudience = true,
+                        ValidateIssuer = false,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions!.CryptoKey)),
+                        ValidateAudience = false,
 
                         ValidateLifetime = true,
                         //https://stackoverflow.com/questions/52379848/asp-net-core-jwt-authentication-allows-expired-tokens
@@ -65,14 +66,14 @@ public static class IdentityConfigureExtension
                     policy.RequireClaim(ClaimTypes.Role, new[] {RoleConstants.Moderator});
                  });
 
-            //
-            //
-            // options.AddPolicy(IdentityAuthConstants.AuthPolicyCompany,
-            //     policy =>
-            //     {
-            //         policy.RequireClaim(ClaimTypes.Role, new[] {RoleConstants.Company});
-            //     });
-            //
+            
+            
+            options.AddPolicy(IdentityAuthConstants.AuthPolicyCompany,
+                policy =>
+                {
+                    policy.RequireClaim(ClaimTypes.Role, new[] {RoleConstants.Company});
+                });
+            
         });
 
         var origins = configuration.GetSection("Cors:Origins")
