@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.Repositories;
 using Dapper;
 
 namespace Core.Infrastructure.Persistence.Repositories;

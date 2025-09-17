@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Events;
 using Core.Domain.SharedKernel.Exceptions;
 using Core.Domain.SharedKernel.ValueObjects.Base;

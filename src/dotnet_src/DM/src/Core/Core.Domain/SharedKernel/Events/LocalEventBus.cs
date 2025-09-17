@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reflection;
 using Core.Domain.BoundedContext.Identity.Events;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 
 namespace Core.Domain.SharedKernel.Events;

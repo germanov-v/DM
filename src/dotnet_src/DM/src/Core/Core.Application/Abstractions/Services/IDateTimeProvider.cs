@@ -1,5 +1,3 @@
-using Core.Domain.SharedKernel.Abstractions;
-
 namespace Core.Application.Abstractions.Services;
 
 public interface IDateTimeProvider : IApplicationService

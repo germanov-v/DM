@@ -2,7 +2,6 @@ using System.Reflection;
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.Services;
 using Core.Application.BusinessLogic.Identity;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Infrastructure.Persistence;
 using Core.Infrastructure.Persistence.Seed;
 using Core.Infrastructure.Services.Identity;

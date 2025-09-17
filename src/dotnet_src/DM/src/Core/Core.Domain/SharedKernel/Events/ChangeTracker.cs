@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Entities;
 using Core.Domain.SharedKernel.ValueObjects;
 using Core.Domain.SharedKernel.ValueObjects.Base;

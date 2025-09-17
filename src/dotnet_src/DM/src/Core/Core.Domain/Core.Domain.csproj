@@ -7,7 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="BoundedContext\Designers\" />
+      <Folder Include="BoundedContext\File\" />
       <Folder Include="BoundedContext\Notifications\EventHandlers\" />
+      <Folder Include="SharedKernel\Abstractions\" />
       <Folder Include="SharedKernel\Errors\" />
     </ItemGroup>
 

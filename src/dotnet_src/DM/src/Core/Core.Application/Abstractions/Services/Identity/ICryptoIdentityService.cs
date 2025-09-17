@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Core.Domain.SharedKernel.Abstractions;
 
 namespace Core.Application.Abstractions.Services.Identity;
 

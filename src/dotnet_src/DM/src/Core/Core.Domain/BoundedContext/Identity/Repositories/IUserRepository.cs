@@ -1,5 +1,5 @@
 using Core.Domain.BoundedContext.Identity.Entities;
-using Core.Domain.SharedKernel.Abstractions;
+using Core.Domain.SharedKernel.Repositories;
 using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Domain.BoundedContext.Identity.Repositories;

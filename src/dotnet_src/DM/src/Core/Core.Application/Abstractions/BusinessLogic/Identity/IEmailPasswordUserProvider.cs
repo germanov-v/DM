@@ -1,7 +1,6 @@
 using Core.Application.Abstractions.Services;
 using Core.Application.Common.Results;
 using Core.Domain.BoundedContext.Identity.Entities;
-using Core.Domain.SharedKernel.Abstractions;
 using Core.Domain.SharedKernel.Results;
 using Core.Domain.SharedKernel.ValueObjects;
 
