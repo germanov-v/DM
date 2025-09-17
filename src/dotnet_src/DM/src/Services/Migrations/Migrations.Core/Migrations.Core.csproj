@@ -26,9 +26,6 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Migrations\250821\up_identity.sql">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Migrations\250821\down_create_empty_db.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

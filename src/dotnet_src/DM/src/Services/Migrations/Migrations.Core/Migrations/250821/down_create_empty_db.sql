@@ -46,11 +46,24 @@
 -- 
 -- DROP TABLE reference.levels;
 -- DROP SCHEMA reference;
+    
+-- PRODUCTS    
 
+DROP TABLE products.sections;
+DROP SCHEMA products;    
+    
+-- reference
+DROP TABLE reference.profile_types;
+DROP TABLE reference.styles;
+DROP TABLE reference.geo_base_data;
+DROP TABLE reference.geo_city;
+DROP TABLE reference.geo_region;
+DROP TABLE reference.geo_country;
+DROP SCHEMA reference;
+
+    
 -- identity
-DROP TABLE identity.users_email;
-DROP TABLE identity.users_phone;
-DROP TABLE identity.external_providers;
+
 
 
 DROP TABLE identity.users_roles;
