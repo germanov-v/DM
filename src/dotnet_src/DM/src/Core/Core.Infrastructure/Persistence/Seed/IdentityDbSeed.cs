@@ -1,5 +1,3 @@
-
-
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.BusinessLogic.Identity;
 using Core.Application.Abstractions.Handlers;
@@ -20,7 +18,7 @@ public class IdentityDbSeed(
     IEmailPasswordUserProvider emailPasswordUserProvider,
     IRoleService roleService,
     IRoleRepository roleRepository
-    
+
     // IUserService userService,
     // IModeratorProfileRepository moderatorProfileRepository,
     // ICandidateProfileRepository candidateProfileRepository,
@@ -29,11 +27,18 @@ public class IdentityDbSeed(
     // IQueryBlogRepository queryBlogRepository,
     // ICommandBlogHandler commandBlogHandler
     // , IProfileAccountService accountService
-) 
+)
 {
     private string[] _roles = new[]
     {
         RoleConstants.Moderator,
+        RoleConstants.ManagerModerator,
+        RoleConstants.Designer,
+        RoleConstants.Designer1,
+        RoleConstants.Designer2,
+        RoleConstants.Designer3,
+        RoleConstants.Provider,
+        RoleConstants.ManagerProvider,
     };
 
 
@@ -46,13 +51,13 @@ public class IdentityDbSeed(
         }
 
         string[] userRoles =
-            [RoleConstants.Moderator, ];
+            [RoleConstants.Moderator,];
         var email = configuration["SeedData:ModeratorTestAccountEmail"]!;
         var password = configuration["SeedData:ModeratorTestAccountPassword"]!;
         var resultCreate = await AddUser(email,
             password,
             userRoles,
-            cancellationToken, true);
+            cancellationToken);
 
         if (resultCreate.IsFailure)
         {
@@ -60,16 +65,28 @@ public class IdentityDbSeed(
             throw new InvalidOperationException(
                 $"Creation seed user was failing! {configuration["SeedData:ModeratorTestAccountEmail"]}");
         }
-       
+
         var resultUpdateRole = await roleService.UpdateRolesByEmail(resultCreate.Value, userRoles, cancellationToken);
 
         if (resultUpdateRole.IsFailure)
         {
             throw new InvalidOperationException(resultUpdateRole.Error.Message);
         }
-        
 
-      
+        _ = await AddUser(configuration["SeedData:Designer1TestAccountEmail"]!,
+            configuration["SeedData:ManagerModeratorTestAccountPassword"]!,
+            [RoleConstants.ManagerModerator],
+            cancellationToken);
+
+        _ = await AddUser(configuration["SeedData:Provider1TestAccountEmail"]!,
+            configuration["SeedData:TestAccountPassword"]!,
+            [RoleConstants.Provider],
+            cancellationToken);
+
+        _ = await AddUser(configuration["SeedData:ManagerProvider1TestAccountEmail"]!,
+            configuration["SeedData:TestAccountPassword"]!,
+            [RoleConstants.ManagerProvider],
+            cancellationToken);
 
         await unitOfWork.CommitTransaction(cancellationToken);
     }
@@ -99,19 +116,17 @@ public class IdentityDbSeed(
 
     public async Task<Result<IdGuid>> AddUser(string email,
         string password,
-        string[] roleAliases, CancellationToken cancellationToken
-        , bool allowUserBlog = false)
+        string[] roleAliases, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByEmail(email, cancellationToken);
 
         if (user == null)
         {
-        
             var roles = await roleRepository.GetListByAliases(roleAliases, cancellationToken);
-            var id = await emailPasswordUserProvider.Create(email, password, email, roleAliases, cancellationToken, true);
+            var id = await emailPasswordUserProvider.Create(email, password, email, roleAliases, cancellationToken,
+                true);
 
             return id;
-
         }
 
         return Result<IdGuid>.Ok(user.Id);
