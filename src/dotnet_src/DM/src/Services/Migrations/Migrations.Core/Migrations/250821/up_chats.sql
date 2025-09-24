@@ -39,18 +39,18 @@ CREATE TABLE IF NOT EXISTS chats.practices
 );
 
 
-CREATE TABLE IF NOT EXISTS chats.lessons_parts
-(
-    chat_id bigint not null
-        constraint fk_chat_id
-            references chats.chats
-            on delete restrict,
-    lesson_part_id bigint not null
-        constraint fk_practice_id
-            references courses.lessons_parts
-            on delete restrict,
-    CONSTRAINT pk_lessons_parts PRIMARY KEY (lesson_part_id, chat_id)
-);
+-- CREATE TABLE IF NOT EXISTS chats.requests
+-- (
+--     chat_id bigint not null
+--         constraint fk_chat_id
+--             references chats.chats
+--             on delete restrict,
+--     lesson_part_id bigint not null
+--         constraint fk_practice_id
+--             references courses.lessons_parts
+--             on delete restrict,
+--     CONSTRAINT pk_lessons_parts PRIMARY KEY (lesson_part_id, chat_id)
+-- );
 
 
 CREATE TABLE IF NOT EXISTS chats.messages

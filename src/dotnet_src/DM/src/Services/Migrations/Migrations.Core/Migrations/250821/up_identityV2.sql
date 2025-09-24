@@ -18,8 +18,7 @@ CREATE TABLE IF NOT EXISTS identity.users
     blocked_changed_at timestamp with time zone default now(),
     blocked_reason_code int,
     blocked_reason text
-
-    );
+ );
 
 
 
