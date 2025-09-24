@@ -32,7 +32,7 @@ public class IdentityHandler : IIdentityHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<IdentityHandler> _logger;
     private readonly IClaimProvider _claimProvider;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly TimeProvider _dateTimeProvider;
 
     public IdentityHandler(
         IOptions<IdentityAuthOptions> authOption,
@@ -42,7 +42,7 @@ public class IdentityHandler : IIdentityHandler
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
         IEmailPasswordUserProvider emailPasswordUserProvider, ILogger<IdentityHandler> logger,
-        IClaimProvider claimProvider, IDateTimeProvider dateTimeProvider, ISessionService sessionService)
+        IClaimProvider claimProvider, TimeProvider dateTimeProvider, ISessionService sessionService)
     {
         _authOption = authOption.Value;
         _cryptoIdentityService = cryptoIdentityService;
@@ -91,7 +91,7 @@ public class IdentityHandler : IIdentityHandler
     {
       
         await _unitOfWork.StartTransaction(cancellationToken);
-        var date = _dateTimeProvider.OffsetNow.AddSeconds(-_authOption.RefreshTokenLifetime);
+        var date = _dateTimeProvider.GetLocalNow().AddSeconds(-_authOption.RefreshTokenLifetime);
         
         var userResult = await _sessionService.GetUserBySession(
             refreshToken,
@@ -152,7 +152,7 @@ public class IdentityHandler : IIdentityHandler
     private async Task<Result<AuthJwtResponseDto>> CreateJwtSessionByUser(IPAddress? ip, string? fingerprint, CancellationToken cancellationToken,
         User user)
     {
-        var dateCreated = _dateTimeProvider.OffsetNow;
+        var dateCreated = _dateTimeProvider.GetLocalNow();
         var dateExpiresRefresh = dateCreated.AddSeconds(_authOption.RefreshTokenLifetime);
         var claims = _claimProvider.GetClaims(user);
         var accessToken = _cryptoIdentityService.GenerateAccessToken(claims, dateExpiresRefresh.UtcDateTime.Date);

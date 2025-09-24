@@ -9,9 +9,9 @@ public sealed class AppDate : ValueObject<DateTimeOffset>
     {
     }
     
-    public static AppDate Create() => new AppDate(DateTimeOffset.Now);
+ //   public static AppDate Create() => new AppDate(DateTimeOffset.Now);
     
-    public static DateTimeOffset Now => DateTimeOffset.Now;
+   // public static DateTimeOffset Now => DateTimeOffset.Now;
      
    // public new DateTimeOffset Value => base.Value.UtcDateTime;
     

@@ -3,10 +3,11 @@ using Core.Domain.SharedKernel.ValueObjects;
 
 namespace Core.Infrastructure.Services;
 
-public class DateTimeProvider : IDateTimeProvider
+[Obsolete]
+class DateTimeProvider : IDateTimeProvider
 {
 //    public DateTime UtcNow { get; } = DateTime.UtcNow;
 
     [Obsolete]
-    public DateTimeOffset OffsetNow { get; } = AppDate.Now; // DateTimeOffset.Now;
+   public  DateTimeOffset OffsetNow { get; }// = AppDate; // DateTimeOffset.Now;
 }

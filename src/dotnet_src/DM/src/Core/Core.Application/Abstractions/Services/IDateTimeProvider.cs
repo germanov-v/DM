@@ -1,6 +1,8 @@
 namespace Core.Application.Abstractions.Services;
 
-public interface IDateTimeProvider : IApplicationService
+
+[Obsolete]
+public interface IDateTimeProvider // : IApplicationService
 {
    // DateTime UtcNow { get; }
     DateTimeOffset OffsetNow { get; }

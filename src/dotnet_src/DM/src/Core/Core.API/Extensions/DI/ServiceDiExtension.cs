@@ -59,7 +59,7 @@ public static class ServiceDiExtension
         // serviceCollection.AddScoped<ReferenceSourceService>();
 
         serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
-
+        serviceCollection.AddSingleton<TimeProvider>(TimeProvider.System);
         serviceCollection.AddTransient<IdentityDbSeed>();
         return serviceCollection;
     }

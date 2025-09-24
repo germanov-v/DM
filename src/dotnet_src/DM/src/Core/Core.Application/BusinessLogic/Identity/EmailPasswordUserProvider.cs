@@ -17,9 +17,10 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
     
     private readonly IUserRepository _userRepository;
     private readonly ICryptoIdentityService _cryptoService;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly TimeProvider _dateTimeProvider;
 
-    public EmailPasswordUserProvider(IUserRepository userRepository, ICryptoIdentityService cryptoService, IDateTimeProvider dateTimeProvider)
+    public EmailPasswordUserProvider(IUserRepository userRepository, ICryptoIdentityService cryptoService, 
+        TimeProvider dateTimeProvider)
     {
         _userRepository = userRepository;
         _cryptoService = cryptoService;
@@ -40,15 +41,15 @@ public class EmailPasswordUserProvider : IEmailPasswordUserProvider
         var (hashPassword, saltPassword, salt) = GetHashPassword(password);
         
         var guidId = IdGuid.New();
-        var date = _dateTimeProvider.OffsetNow;
+        var date = _dateTimeProvider.GetLocalNow();
         var user = new User(
             new EmailIdentity(email), 
             confirmed: new Status(isActive, date),
-            new BlockStatus(false,_dateTimeProvider.OffsetNow, null, null),
+            new BlockStatus(false,date, null, null),
             new Name(name),
             id: guidId,
             password: new Password(hashPassword, saltPassword),
-            createdAt:  AppDate.Create()
+            createdAt:  new AppDate(date)
         );
 
          
