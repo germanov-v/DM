@@ -1,0 +1,1 @@
+1. UTC: SELECT  created_at AT TIME ZONE 'UTC' AS created_at FROM identity.users

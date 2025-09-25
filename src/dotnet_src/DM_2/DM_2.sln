@@ -1,0 +1,117 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B6E83663-A051-4424-83E4-1C4E5E7A8566}"
+	ProjectSection(SolutionItems) = preProject
+		docs\ddd.md = docs\ddd.md
+		docs\todo.md = docs\todo.md
+		docs\identity.md = docs\identity.md
+		docs\self-ssl.md = docs\self-ssl.md
+		docs\СОГЛАШЕНИЯ-К_ПРОЧТЕНИЮ.md = docs\СОГЛАШЕНИЯ-К_ПРОЧТЕНИЮ.md
+		docs\QuestionsToNewVersionNet.md = docs\QuestionsToNewVersionNet.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ddd", "ddd", "{DA5F8139-86B8-42CA-9A1C-E52ACD8222F9}"
+	ProjectSection(SolutionItems) = preProject
+		docs\ddd\todo.md = docs\ddd\todo.md
+		docs\ddd\UNIT.md = docs\ddd\UNIT.md
+		docs\ddd\errors.md = docs\ddd\errors.md
+		docs\ddd\domain-erros.md = docs\ddd\domain-erros.md
+		docs\ddd\event-bus-DI.md = docs\ddd\event-bus-DI.md
+		docs\ddd\db-context-uow.md = docs\ddd\db-context-uow.md
+		docs\ddd\events-handler-V2.md = docs\ddd\events-handler-V2.md
+		docs\ddd\!!!_change_tracker.md = docs\ddd\!!!_change_tracker.md
+		docs\ddd\register-EVENTS-DI.md = docs\ddd\register-EVENTS-DI.md
+		docs\ddd\normal-ChangeTracker.md = docs\ddd\normal-ChangeTracker.md
+		docs\ddd\service-provider-event-bus.md = docs\ddd\service-provider-event-bus.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net", "net", "{D2170686-6D42-41E9-9823-76A4EF8BAA4F}"
+	ProjectSection(SolutionItems) = preProject
+		docs\net\XOR.md = docs\net\XOR.md
+		docs\net\Identity.md = docs\net\Identity.md
+		docs\net\todo-net.md = docs\net\todo-net.md
+		docs\net\inline-jit.md = docs\net\inline-jit.md
+		docs\net\Continuation.md = docs\net\Continuation.md
+		docs\net\Optimization.md = docs\net\Optimization.md
+		docs\net\StaticClosuer.md = docs\net\StaticClosuer.md
+		docs\net\PatternMatching.md = docs\net\PatternMatching.md
+		docs\net\SqlOptimization.md = docs\net\SqlOptimization.md
+		docs\net\DapperQueryStream.md = docs\net\DapperQueryStream.md
+		docs\net\RuntimeTypeHandle.md = docs\net\RuntimeTypeHandle.md
+		docs\net\DelegateAllocation.md = docs\net\DelegateAllocation.md
+		docs\net\StructComareResultSql.md = docs\net\StructComareResultSql.md
+		docs\net\NpgsqlDataSource-EXAMPLE.md = docs\net\NpgsqlDataSource-EXAMPLE.md
+		docs\net\NpgsqlDataSource-EXAMPLE-2.md = docs\net\NpgsqlDataSource-EXAMPLE-2.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{B8E14B8B-0D7C-42C1-A0E7-2E1C649B05E9}"
+	ProjectSection(SolutionItems) = preProject
+		docs\sql\UtcTimeStamp.md = docs\sql\UtcTimeStamp.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BFDFB7F4-A0CA-4E06-AECD-71E4C5E15E15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{670EBE69-A5E0-4FF4-83F4-1D0A291EAEB5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{C3696380-7525-4188-A37A-EA896ED7A57F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{20FBFCAC-DA28-442B-A41C-6892B12537E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.API", "src\Core\Core.API\Core.API.csproj", "{743B43AB-6348-4F17-AD29-22525A080EC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Domain", "src\Core\Core.Domain\Core.Domain.csproj", "{DDD30D25-3177-416B-BBB5-40CDA4B92AF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Application", "src\Core\Core.Application\Core.Application.csproj", "{16707220-1D50-4ECA-8DAB-0240347BC338}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure", "src\Core\Core.Infrastructure\Core.Infrastructure.csproj", "{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.Migrations", "src\Core\Core.Infrastructure.Migrations\Core.Infrastructure.Migrations.csproj", "{6B04F3E7-524D-4935-8667-7120D01A085A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ef-core", "ef-core", "{D1168C4C-F725-4444-B300-341C15DE1695}"
+	ProjectSection(SolutionItems) = preProject
+		docs\ef-core\EfCoreSpecifications.md = docs\ef-core\EfCoreSpecifications.md
+		docs\ef-core\Migrations-Aggregates.md = docs\ef-core\Migrations-Aggregates.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA5F8139-86B8-42CA-9A1C-E52ACD8222F9} = {B6E83663-A051-4424-83E4-1C4E5E7A8566}
+		{D2170686-6D42-41E9-9823-76A4EF8BAA4F} = {B6E83663-A051-4424-83E4-1C4E5E7A8566}
+		{B8E14B8B-0D7C-42C1-A0E7-2E1C649B05E9} = {B6E83663-A051-4424-83E4-1C4E5E7A8566}
+		{670EBE69-A5E0-4FF4-83F4-1D0A291EAEB5} = {BFDFB7F4-A0CA-4E06-AECD-71E4C5E15E15}
+		{C3696380-7525-4188-A37A-EA896ED7A57F} = {BFDFB7F4-A0CA-4E06-AECD-71E4C5E15E15}
+		{20FBFCAC-DA28-442B-A41C-6892B12537E3} = {BFDFB7F4-A0CA-4E06-AECD-71E4C5E15E15}
+		{743B43AB-6348-4F17-AD29-22525A080EC4} = {C3696380-7525-4188-A37A-EA896ED7A57F}
+		{DDD30D25-3177-416B-BBB5-40CDA4B92AF0} = {C3696380-7525-4188-A37A-EA896ED7A57F}
+		{16707220-1D50-4ECA-8DAB-0240347BC338} = {C3696380-7525-4188-A37A-EA896ED7A57F}
+		{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B} = {C3696380-7525-4188-A37A-EA896ED7A57F}
+		{6B04F3E7-524D-4935-8667-7120D01A085A} = {C3696380-7525-4188-A37A-EA896ED7A57F}
+		{D1168C4C-F725-4444-B300-341C15DE1695} = {B6E83663-A051-4424-83E4-1C4E5E7A8566}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{743B43AB-6348-4F17-AD29-22525A080EC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{743B43AB-6348-4F17-AD29-22525A080EC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{743B43AB-6348-4F17-AD29-22525A080EC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{743B43AB-6348-4F17-AD29-22525A080EC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDD30D25-3177-416B-BBB5-40CDA4B92AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDD30D25-3177-416B-BBB5-40CDA4B92AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDD30D25-3177-416B-BBB5-40CDA4B92AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDD30D25-3177-416B-BBB5-40CDA4B92AF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16707220-1D50-4ECA-8DAB-0240347BC338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16707220-1D50-4ECA-8DAB-0240347BC338}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16707220-1D50-4ECA-8DAB-0240347BC338}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16707220-1D50-4ECA-8DAB-0240347BC338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B04F3E7-524D-4935-8667-7120D01A085A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B04F3E7-524D-4935-8667-7120D01A085A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B04F3E7-524D-4935-8667-7120D01A085A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B04F3E7-524D-4935-8667-7120D01A085A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
