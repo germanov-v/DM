@@ -6,9 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="BoundedContext\Identity\Aggregates\" />
-      <Folder Include="BoundedContext\Identity\Entities\" />
-    </ItemGroup>
-
 </Project>
