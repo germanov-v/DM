@@ -24,7 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core.Domain\Core.Domain.csproj" />
-      <ProjectReference Include="..\Core.Infrastructure.Migrations\Core.Infrastructure.Migrations.csproj" />
+      <ProjectReference Include="..\Core.Infrastructure.Database\Core.Infrastructure.Database.csproj" />
     </ItemGroup>
 
 </Project>

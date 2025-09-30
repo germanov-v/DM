@@ -1,4 +1,4 @@
-using Core.Infrastructure.Migrations;
+using Core.Infrastructure.Database;
 using Core.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +15,7 @@ public static class ConfigDatabase
             services.AddDbContext<CoreDbContext>(options =>
             {
                 options.UseNpgsql(dbOptions
-                        //        , b => b.MigrationsAssembly("Core.Infrastructure.Migrations")
+                        //        , b => b.MigrationsAssembly("Core.Infrastructure.Database")
                     )
                     //.EnableSensitiveDataLogging()
                     .UseSnakeCaseNamingConvention();

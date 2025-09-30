@@ -65,13 +65,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Application", "src\Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure", "src\Core\Core.Infrastructure\Core.Infrastructure.csproj", "{CCA8300D-2CFF-47F1-AD4D-7D2E9786837B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.Migrations", "src\Core\Core.Infrastructure.Migrations\Core.Infrastructure.Migrations.csproj", "{6B04F3E7-524D-4935-8667-7120D01A085A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.Database", "src\Core\Core.Infrastructure.Database\Core.Infrastructure.Database.csproj", "{6B04F3E7-524D-4935-8667-7120D01A085A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ef-core", "ef-core", "{D1168C4C-F725-4444-B300-341C15DE1695}"
 	ProjectSection(SolutionItems) = preProject
 		docs\ef-core\EfCoreSpecifications.md = docs\ef-core\EfCoreSpecifications.md
 		docs\ef-core\Migrations-Aggregates.md = docs\ef-core\Migrations-Aggregates.md
 		docs\ef-core\Jsonb-EfCore.md = docs\ef-core\Jsonb-EfCore.md
+		docs\ef-core\ValueObjects.md = docs\ef-core\ValueObjects.md
 	EndProjectSection
 EndProject
 Global

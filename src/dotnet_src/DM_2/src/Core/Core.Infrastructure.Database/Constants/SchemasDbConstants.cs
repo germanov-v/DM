@@ -1,4 +1,4 @@
-namespace Core.Infrastructure.Migrations.Constants;
+namespace Core.Infrastructure.Database.Constants;
 
 public static class SchemasDbConstants
 {

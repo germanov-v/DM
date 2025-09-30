@@ -2,7 +2,7 @@ using Core.Domain.SharedKernel.Entities.Abstractions.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Core.Infrastructure.Migrations.Configurations;
+namespace Core.Infrastructure.Database.Configurations;
 
 public static class FieldExtension
 {

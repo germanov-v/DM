@@ -1,13 +1,13 @@
 using Core.Domain.BoundedContext.Identity.Aggregates;
-using Core.Infrastructure.Migrations.Configurations.Identity;
-using Core.Infrastructure.Migrations.Constants;
+using Core.Infrastructure.Database.Configurations.Identity;
+using Core.Infrastructure.Database.Constants;
 using Microsoft.EntityFrameworkCore;
 
-namespace Core.Infrastructure.Migrations;
+namespace Core.Infrastructure.Database;
 
 /// <summary>
 /// https://learn.microsoft.com/en-us/ef/core/cli/dotnet
-///  dotnet ef --project ../Core.Infrastructure.Migrations/ --startup-project ../Core.API/ migrations add Initial --context CoreDbContext --verbose
+///  dotnet ef --project ../Core.Infrastructure.Database/ --startup-project ../Core.API/ migrations add Initial --context CoreDbContext --verbose
 /// 
 /// </summary>
 public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(options)

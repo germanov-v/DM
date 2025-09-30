@@ -1,11 +1,11 @@
 using Core.Domain.BoundedContext.Identity.Aggregates;
 using Core.Domain.BoundedContext.Identity.Entities;
-using Core.Infrastructure.Migrations.Configurations.Abstractions;
-using Core.Infrastructure.Migrations.Constants;
+using Core.Infrastructure.Database.Configurations.Abstractions;
+using Core.Infrastructure.Database.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Core.Infrastructure.Migrations.Configurations.Identity;
+namespace Core.Infrastructure.Database.Configurations.Identity;
 
 internal class SessionConfiguration: AggregateConfiguration<Session>
 {
