@@ -73,6 +73,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ef-core", "ef-core", "{D116
 		docs\ef-core\Migrations-Aggregates.md = docs\ef-core\Migrations-Aggregates.md
 		docs\ef-core\Jsonb-EfCore.md = docs\ef-core\Jsonb-EfCore.md
 		docs\ef-core\ValueObjects.md = docs\ef-core\ValueObjects.md
+		docs\ef-core\HighLoad.md = docs\ef-core\HighLoad.md
+		docs\ef-core\UnitOfWork-EfCore.md = docs\ef-core\UnitOfWork-EfCore.md
+		docs\ef-core\MINUSES-EF-CORE.md = docs\ef-core\MINUSES-EF-CORE.md
+		docs\ef-core\SqlCases.md = docs\ef-core\SqlCases.md
 	EndProjectSection
 EndProject
 Global

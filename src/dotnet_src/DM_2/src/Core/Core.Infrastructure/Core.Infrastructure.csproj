@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="Persistence\Constants\" />
-      <Folder Include="Persistence\Repositories\" />
       <Folder Include="Persistence\Seed\" />
       <Folder Include="Services\" />
     </ItemGroup>
