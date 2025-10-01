@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS telegram.accounts
     tg_user_id       BIGINT      NOT NULL,
     tg_is_bot        BOOLEAN     NOT NULL DEFAULT FALSE,
 
-    username         TEXT,
+    username         VARCHAR(50),
     first_name       TEXT,
     last_name        TEXT,
     language_code    VARCHAR(15),
@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS telegram.accounts
     );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_accounts_tg_user_id   ON telegram.accounts(tg_user_id);
-CREATE INDEX        IF NOT EXISTS ix_accounts_username     ON telegram.accounts(username);
+CREATE UNIQUE INDEX        IF NOT EXISTS ix_accounts_username     ON telegram.accounts(username) WHERE username IS NOT NULL;
 CREATE INDEX        IF NOT EXISTS ix_accounts_last_seen    ON telegram.accounts(last_seen_at);
-CREATE INDEX        IF NOT EXISTS idx_accounts_guid_id     ON telegram.accounts(guid_id);
-CREATE INDEX        IF NOT EXISTS ix_accounts_phone        ON telegram.accounts(phone) WHERE phone IS NOT NULL;
+CREATE UNIQUE INDEX        IF NOT EXISTS idx_accounts_guid_id     ON telegram.accounts(guid_id);
+CREATE UNIQUE INDEX        IF NOT EXISTS ix_accounts_phone        ON telegram.accounts(phone) WHERE phone IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS telegram.accounts_bots
 (
