@@ -1,9 +1,9 @@
 CREATE SCHEMA IF NOT EXISTS profiles;
 
 -- profiles
+
     
 -- types
-    
 -- Executors, Designers, Showrooms, Vendors    
 
 
@@ -11,6 +11,9 @@ CREATE SCHEMA IF NOT EXISTS profiles;
 
 -- offices
 
+    
+    
+    
 -- requests
 
 

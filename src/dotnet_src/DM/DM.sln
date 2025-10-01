@@ -102,6 +102,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{4884789C-D56
 		docs\sql\UtcTimeStamp.md = docs\sql\UtcTimeStamp.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "architecture", "architecture", "{D57020E2-FAE3-41F6-8D5F-900391BD67CD}"
+	ProjectSection(SolutionItems) = preProject
+		docs\architecture\todo.md = docs\architecture\todo.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +135,7 @@ Global
 		{8EB1F023-10BA-46F1-AC1F-78E123304A60} = {8E87C2A1-513A-4CAB-8B36-C3865AB877D1}
 		{DC0777F3-E977-4373-8C85-C593634C8A07} = {36DBFA7C-AC3A-4B99-AC8B-92CFF1481412}
 		{4884789C-D569-4D5C-A255-73FA95952B87} = {8E87C2A1-513A-4CAB-8B36-C3865AB877D1}
+		{D57020E2-FAE3-41F6-8D5F-900391BD67CD} = {8E87C2A1-513A-4CAB-8B36-C3865AB877D1}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CF98DB27-6111-463F-81C3-848E2C8A3AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
