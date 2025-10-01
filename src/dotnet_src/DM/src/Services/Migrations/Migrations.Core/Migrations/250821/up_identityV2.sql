@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS identity.users
             PRIMARY KEY,
     guid_id              uuid         not null,
     name                 varchar(250) not null,
+    --provider     varchar(15) not null, -- провайдер, которым был авторизован
     created_at           timestamp with time zone default now(),
     updated_at           timestamp with time zone default now(), -- будет нативное поле now()
     is_confirmed         boolean      not null    default false,
@@ -84,7 +85,7 @@ CREATE TABLE IF NOT EXISTS identity.external_providers
         constraint fk_external_providers_user_id
             references identity.users
             on delete restrict,
-    provider            varchar(10) not null,
+    provider            varchar(15) not null,
     provider_user_id    text        NOT NULL,
 
     email_from_provider text,
@@ -158,7 +159,7 @@ CREATE TABLE IF NOT EXISTS identity.sessions
         constraint fk_sessions_user_id
             references identity.users
             on delete restrict,
-    provider                 varchar(10) not null,
+    provider                 varchar(15) not null,
     guid_id                  uuid        not null,
     created_at               timestamp with time zone default now(),
     access_token             text        not null,
