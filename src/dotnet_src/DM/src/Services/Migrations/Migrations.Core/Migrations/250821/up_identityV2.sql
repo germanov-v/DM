@@ -21,14 +21,14 @@ CREATE TABLE IF NOT EXISTS identity.users
 CREATE TABLE IF NOT EXISTS identity.tg_users
 (
     user_id    bigint not null
-        constraint fk_users_roles_user_id
-            references identity.users
+        constraint fk_tg_users_user_id
+            references identity.users(id)
             on delete restrict,
     tg_account_id bigint
         constraint fk_account_telegram_id
-            references telegram.accounts
+            references telegram.accounts(id)
             on delete restrict,
-    constraint pk_users_roles
+    constraint pk_tg_users
         primary key (user_id, tg_account_id)
 );
 
@@ -36,11 +36,11 @@ CREATE TABLE IF NOT EXISTS identity.tg_users
 CREATE TABLE IF NOT EXISTS identity.users_email
 (
     user_id                   bigint       not null
-        constraint fk_users_roles_user_id
+        constraint fk_users_email_user_id
             references identity.users
             on delete restrict
         PRIMARY KEY,
-    email                     varchar(100) not null UNIQUE,
+    email                     varchar(100) not null,
     password_hash             varchar(200) not null,
     password_salt             varchar(200) not null,
     is_confirmed              boolean      not null default false,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS identity.users_email
 );
 
 
-create index if not exists idx_users_email on identity.users_email (email);
+create  UNIQUE index if not exists idx_users_email on identity.users_email (email);
 create index if not exists idx_users_email_confirmed_code
     on identity.users_email (confirmed_code)
     INCLUDE (is_confirmed, confirmed_code_expires_at);
@@ -65,14 +65,14 @@ CREATE TABLE IF NOT EXISTS identity.users_phone
             references identity.users
             on delete restrict
         PRIMARY KEY,
-    phone                     varchar(15) not null UNIQUE,
+    phone                     varchar(15) not null,
     is_confirmed              boolean     not null default false,
     confirmed_changed_at      timestamp with time zone,
     confirmed_code            varchar(50),
     confirmed_code_expires_at timestamp with time zone
 );
 
-create index if not exists idx_users_phone on identity.users_phone (phone);
+create  UNIQUE index if not exists idx_users_phone on identity.users_phone (phone);
 create index if not exists idx_users_phone_confirmed_code
     on identity.users_phone (confirmed_code)
     INCLUDE (is_confirmed, confirmed_code_expires_at);
@@ -81,10 +81,9 @@ create index if not exists idx_users_phone_confirmed_code
 CREATE TABLE IF NOT EXISTS identity.external_providers
 (
     user_id             bigint      not null
-        constraint fk_users_roles_user_id
+        constraint fk_external_providers_user_id
             references identity.users
-            on delete restrict
-        PRIMARY KEY,
+            on delete restrict,
     provider            varchar(10) not null,
     provider_user_id    text        NOT NULL,
 
@@ -103,7 +102,9 @@ CREATE TABLE IF NOT EXISTS identity.external_providers
 
     created_at          timestamptz NOT NULL DEFAULT now(),
     updated_at          timestamptz NOT NULL DEFAULT now(),
-    last_used_at        timestamptz
+    last_used_at        timestamptz,
+    constraint pk_external_providers_users
+        primary key (user_id, provider)
 );
 
 
@@ -130,7 +131,7 @@ CREATE TABLE IF NOT EXISTS identity.roles
     alias   text not null UNIQUE
 );
 
-create index if not exists idx_sessions_guid_id on identity.roles (guid_id);
+create index if not exists idx_roles_guid_id on identity.roles (guid_id);
 
 
 CREATE TABLE IF NOT EXISTS identity.users_roles
@@ -196,16 +197,14 @@ CREATE TABLE IF NOT EXISTS identity.web_anonymous
     last_seen_at       TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
-create index if not exists idx_web_anonymous_user_id on identity.web_anonymous (user_id) WHERE user_id NOT NULL;
-create index if not exists idx_web_anonymous_guid_id on identity.web_anonymous (guid_id);
--- ключи/индексы (cookie client_id = главный)
-CREATE UNIQUE INDEX IF NOT EXISTS ux_web_anonymous_client_id ON chats.web_anonymous(client_id);
-CREATE UNIQUE INDEX IF NOT EXISTS ux_web_anonymous_fp       ON chats.web_anonymous(browser_fp_hash) WHERE browser_fp_hash IS NOT NULL;
-CREATE INDEX        IF NOT EXISTS ix_web_anonymous_last_ip  ON chats.web_anonymous(last_ip);
-CREATE INDEX        IF NOT EXISTS ix_web_anonymous_seen     ON chats.web_anonymous(last_seen_at);
+create index if not exists idx_web_anonymous_user_id on identity.web_anonymous (user_id) WHERE user_id IS NOT NULL;
+create UNIQUE index if not exists idx_web_anonymous_guid_id on identity.web_anonymous (guid_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_web_anonymous_fp       ON identity.web_anonymous(browser_fp_hash) WHERE browser_fp_hash IS NOT NULL;
+CREATE INDEX        IF NOT EXISTS ix_web_anonymous_last_ip  ON identity.web_anonymous(last_ip);
+CREATE INDEX        IF NOT EXISTS ix_web_anonymous_seen     ON identity.web_anonymous(last_seen_at);
 
 
-CREATE TABLE IF NOT EXISTS chats.ios_install
+CREATE TABLE IF NOT EXISTS identity.ios_install
 (
     id                 BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 
@@ -232,7 +231,7 @@ CREATE TABLE IF NOT EXISTS chats.ios_install
     first_seen_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     last_seen_at       TIMESTAMPTZ NOT NULL DEFAULT now()
     );
-create index if not exists idx_ios_install_user_id on identity.ios_install (user_id) WHERE user_id NOT NULL;
+create index if not exists idx_ios_install_user_id on identity.ios_install (user_id) WHERE user_id IS NOT NULL;
 create index if not exists idx_ios_install_guid_id on identity.ios_install (guid_id);
 
 -- индексы (главный ключ соответствия — install_id)
