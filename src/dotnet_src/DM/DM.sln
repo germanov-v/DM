@@ -100,6 +100,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{4884789C-D569-4D5C-A255-73FA95952B87}"
 	ProjectSection(SolutionItems) = preProject
 		docs\sql\UtcTimeStamp.md = docs\sql\UtcTimeStamp.md
+		docs\sql\LocationGeography.md = docs\sql\LocationGeography.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "architecture", "architecture", "{D57020E2-FAE3-41F6-8D5F-900391BD67CD}"

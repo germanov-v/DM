@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS products.section_brands
         on delete restrict,
     constraint pk_section_brands
          primary key (section_id, brand_id)
-    );
+);
 
 
 create table products.products

@@ -201,8 +201,8 @@ CREATE TABLE IF NOT EXISTS identity.web_anonymous
 create index if not exists idx_web_anonymous_user_id on identity.web_anonymous (user_id) WHERE user_id IS NOT NULL;
 create UNIQUE index if not exists idx_web_anonymous_guid_id on identity.web_anonymous (guid_id);
 CREATE UNIQUE INDEX IF NOT EXISTS ux_web_anonymous_fp       ON identity.web_anonymous(browser_fp_hash) WHERE browser_fp_hash IS NOT NULL;
-CREATE INDEX        IF NOT EXISTS ix_web_anonymous_last_ip  ON identity.web_anonymous(last_ip);
-CREATE INDEX        IF NOT EXISTS ix_web_anonymous_seen     ON identity.web_anonymous(last_seen_at);
+CREATE INDEX        IF NOT EXISTS idx_web_anonymous_last_ip  ON identity.web_anonymous(last_ip);
+CREATE INDEX        IF NOT EXISTS idx_web_anonymous_seen     ON identity.web_anonymous(last_seen_at);
 
 
 CREATE TABLE IF NOT EXISTS identity.ios_install
@@ -237,8 +237,8 @@ create index if not exists idx_ios_install_guid_id on identity.ios_install (guid
 
 -- индексы (главный ключ соответствия — install_id)
 CREATE UNIQUE INDEX IF NOT EXISTS ux_ios_install_install_id ON identity.ios_install(install_id);
-CREATE INDEX        IF NOT EXISTS ix_ios_install_ios_idfv       ON identity.ios_install(idfv) WHERE idfv IS NOT NULL;
-CREATE INDEX        IF NOT EXISTS ix_ios_install_ios_seen        ON identity.ios_install(last_seen_at);
+CREATE INDEX        IF NOT EXISTS idx_ios_install_ios_idfv       ON identity.ios_install(idfv) WHERE idfv IS NOT NULL;
+CREATE INDEX        IF NOT EXISTS idx_ios_install_ios_seen        ON identity.ios_install(last_seen_at);
 
 
 

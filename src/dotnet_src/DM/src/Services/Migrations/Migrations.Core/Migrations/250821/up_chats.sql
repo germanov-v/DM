@@ -85,11 +85,11 @@ CREATE INDEX IF NOT EXISTS idx_messages_participants_reply_id ON chats.messages 
 CREATE TABLE IF NOT EXISTS chats.message_files
 (
     file_id bigint not null
-        constraint fk_files_file_id
+        constraint fk_message_files_file_id
         references files.files
         on delete restrict,
     message_id bigint not null
-        constraint fk_files_message_id
+        constraint fk_message_files_message_id
         references chats.messages
         on delete restrict,
     constraint pk_message_files  primary key (file_id, message_id)

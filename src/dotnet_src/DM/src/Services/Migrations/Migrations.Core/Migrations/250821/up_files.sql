@@ -17,6 +17,6 @@ create table files.files
 );
 
 
-create unique index ix_files_guid_id
+create unique index idx_files_guid_id
     on files.files (guid_id);
 

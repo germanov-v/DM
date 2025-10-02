@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS telegram.accounts
     );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_accounts_tg_user_id   ON telegram.accounts(tg_user_id);
-CREATE UNIQUE INDEX        IF NOT EXISTS ix_accounts_username     ON telegram.accounts(username) WHERE username IS NOT NULL;
-CREATE INDEX        IF NOT EXISTS ix_accounts_last_seen    ON telegram.accounts(last_seen_at);
+CREATE UNIQUE INDEX        IF NOT EXISTS idx_accounts_username     ON telegram.accounts(username) WHERE username IS NOT NULL;
+CREATE INDEX        IF NOT EXISTS idx_accounts_last_seen    ON telegram.accounts(last_seen_at);
 CREATE UNIQUE INDEX        IF NOT EXISTS idx_accounts_guid_id     ON telegram.accounts(guid_id);
-CREATE UNIQUE INDEX        IF NOT EXISTS ix_accounts_phone        ON telegram.accounts(phone) WHERE phone IS NOT NULL;
+CREATE UNIQUE INDEX        IF NOT EXISTS idx_accounts_phone        ON telegram.accounts(phone) WHERE phone IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS telegram.accounts_bots
 (
@@ -37,4 +37,4 @@ CREATE TABLE IF NOT EXISTS telegram.accounts_bots
     CONSTRAINT pk_accounts_bots PRIMARY KEY (tg_account_id, tg_bot_id)
     );
 
-CREATE INDEX IF NOT EXISTS ix_tg_bot_id ON telegram.accounts_bots(tg_bot_id);
+CREATE INDEX IF NOT EXISTS idx_tg_bot_id ON telegram.accounts_bots(tg_bot_id);

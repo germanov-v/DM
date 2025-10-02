@@ -61,10 +61,10 @@ create table reference.geo_country
 
 
 
-create index ix_geo_country_ext_id
+create index idx_geo_country_ext_id
     on reference.geo_country (ext_id);
 
-create unique index ix_geo_country_ext_id_ext_url
+create unique index idx_geo_country_ext_id_ext_url
     on reference.geo_country (ext_id, ext_url)
     where ((ext_id IS NOT NULL) AND (ext_url IS NOT NULL));
 
@@ -106,23 +106,23 @@ create table reference.geo_city
 );
 
 
-create index ix_geo_city_ext_id
+create index idx_geo_city_ext_id
     on reference.geo_city (ext_id);
 
-create unique index ix_geo_city_ext_id_ext_url
+create unique index idx_geo_city_ext_id_ext_url
     on reference.geo_city (ext_id, ext_url)
     where ((ext_id IS NOT NULL) AND (ext_url IS NOT NULL)); -- partial indexes
 
-create index ix_geo_city_region_id
+create index idx_geo_city_region_id
     on reference.geo_city (region_id);
 
-create index ix_geo_region_country_id
+create index idx_geo_region_country_id
     on reference.geo_region (country_id);
 
-create index ix_geo_region_ext_id
+create index idx_geo_region_ext_id
     on reference.geo_region (ext_id);
 
-create unique index ix_geo_region_ext_id_ext_url
+create unique index idx_geo_region_ext_id_ext_url
     on reference.geo_region (ext_id, ext_url)
     where ((ext_id IS NOT NULL) AND (ext_url IS NOT NULL));
 
