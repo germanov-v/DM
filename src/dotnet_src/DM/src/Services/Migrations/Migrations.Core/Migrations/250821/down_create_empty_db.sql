@@ -1,9 +1,41 @@
+
+-- crm
+
+DROP TABLE IF EXISTS reference.request_brands;
+DROP TABLE IF EXISTS reference.request_sections;
+DROP TABLE IF EXISTS profiles.request_files;
+DROP TABLE IF EXISTS crm.request_products;
+DROP TABLE IF EXISTS crm.request_chats;
+DROP TABLE IF EXISTS reference.requests;
+DROP SCHEMA IF EXISTS crm;
+
+-- profiles
+
+DROP TABLE IF EXISTS profiles.profile_brands;
+DROP TABLE IF EXISTS profiles.profile_sections;
+DROP TABLE IF EXISTS profiles.profile_files;
+
+DROP TABLE IF EXISTS profiles.location_brands;
+DROP TABLE IF EXISTS profiles.location_sections;
+DROP TABLE IF EXISTS profiles.location_products;
+DROP TABLE IF EXISTS profiles.file_locations;
+
+DROP TABLE IF EXISTS profiles.portfolio_brands;
+DROP TABLE IF EXISTS profiles.portfolio_sections;
+DROP TABLE IF EXISTS profiles.portfolio_files;
+DROP TABLE IF EXISTS profiles.portfolio_products;
+DROP TABLE IF EXISTS profiles.locations;
+DROP TABLE IF EXISTS profiles.portfolio;
+DROP TABLE IF EXISTS profiles.profiles;
+DROP SCHEMA IF EXISTS profiles;
+
 -- products
-DROP TABLE IF EXISTS reference.products;
-DROP TABLE IF EXISTS reference.section_brands;
-DROP TABLE IF EXISTS reference.brands;
-DROP TABLE IF EXISTS reference.brands;
-DROP TABLE IF EXISTS reference.sections;
+
+DROP TABLE IF EXISTS products.section_brands;
+DROP TABLE IF EXISTS products.products;
+DROP TABLE IF EXISTS products.brands;
+DROP TABLE IF EXISTS products.brands;
+DROP TABLE IF EXISTS products.sections;
 DROP SCHEMA IF EXISTS products;    
 
     

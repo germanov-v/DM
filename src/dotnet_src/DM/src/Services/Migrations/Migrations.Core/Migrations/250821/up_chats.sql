@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS chats.chats
     tg_bot_id   bigint,
     created_at  timestamp with time zone default now(),
     updated_at  timestamp with time zone default now(),
-    is_disabled boolean                  default false
+    is_disabled boolean                  default false,
+    is_closed boolean default false
 );
 create index if not exists idx_tg_bot_id on chats.chats (tg_bot_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_chats_guid_id ON chats.chats (guid_id);

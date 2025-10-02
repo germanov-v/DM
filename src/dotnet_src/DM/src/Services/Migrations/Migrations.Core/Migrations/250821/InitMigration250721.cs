@@ -14,6 +14,9 @@ public class InitMigration250721 : Migration
         Execute.Script("./Migrations/250821/up_references.sql");
         Execute.Script("./Migrations/250821/up_chats.sql");
         Execute.Script("./Migrations/250821/up_products.sql");
+        Execute.Script("./Migrations/250821/up_profiles.sql");
+        Execute.Script("./Migrations/250821/up_crm.sql");
+        
       // Execute.Script("./Migrations/250721/up_blog.sql");
        // Execute.Script("./Migrations/250721/up_files.sql");
        //

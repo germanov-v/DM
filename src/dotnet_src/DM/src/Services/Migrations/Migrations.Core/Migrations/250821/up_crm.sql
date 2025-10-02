@@ -11,7 +11,8 @@ create table crm.requests
             references identity.users
             on delete restrict,
     name text not null,
-    description not null,
+    description text,
+    status varchar(30) not null, -- OnModeration, AcceptNew, ClosedByUser, RejectModeration, 
     is_verified BOOLEAN not null default false,
     verified_change_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     verified_by_user_id  bigint
@@ -23,7 +24,7 @@ create table crm.requests
     updated_at           timestamp with time zone default now(),
     city_id  bigint
         constraint fk_requests_city_id
-            references references.geo_city
+            references reference.geo_city
             on delete restrict,
     comment_to_moderator text, -- оставляет пользователь
     moderator_comment text -- для внутреннего использования
@@ -33,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_requests_user_id ON crm.requests (user_id);
 CREATE  INDEX IF NOT EXISTS idx_requests_created_at ON crm.requests (created_at );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_requests_guid_id ON crm.requests (guid_id );
 CREATE INDEX IF NOT EXISTS idx_requests_city_id ON crm.requests (city_id);
-
+CREATE INDEX IF NOT EXISTS idx_requests_status ON crm.requests (status);
 
 CREATE TABLE IF NOT EXISTS crm.request_brands
 (
@@ -45,11 +46,13 @@ CREATE TABLE IF NOT EXISTS crm.request_brands
         constraint fk_portfolio_brands_brand_id
         references products.brands
         on delete restrict,
-    constraint pkrequest_brands primary key (request_id, brand_id)
+    constraint pk_request_brands primary key (request_id, brand_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_request_brands_brand_id
+    ON crm.request_brands (brand_id);
 
-CREATE TABLE IF NOT EXISTS profiles.request_sections
+CREATE TABLE IF NOT EXISTS crm.request_sections
 (
     request_id bigint not null
         constraint fk_request_sections_request_id
@@ -62,7 +65,10 @@ CREATE TABLE IF NOT EXISTS profiles.request_sections
     constraint pk_request_sections primary key (request_id, section_id)
 );
 
-CREATE TABLE IF NOT EXISTS profiles.request_files
+CREATE INDEX IF NOT EXISTS idx_request_sections_section_id
+    ON crm.request_sections (section_id);
+
+CREATE TABLE IF NOT EXISTS crm.request_files
 (
     file_id bigint not null
         constraint fk_request_files_file_id
@@ -74,9 +80,12 @@ CREATE TABLE IF NOT EXISTS profiles.request_files
         on delete restrict,
     constraint pk_portfolio_files  primary key (file_id, request_id)
     );
+CREATE INDEX IF NOT EXISTS idx_request_files_file_id
+    ON crm.request_files (file_id);
 
 
-CREATE TABLE IF NOT EXISTS profiles.request_products
+
+CREATE TABLE IF NOT EXISTS crm.request_products
 (
     request_id bigint not null
         constraint fk_request_files_request_id
@@ -84,12 +93,17 @@ CREATE TABLE IF NOT EXISTS profiles.request_products
         on delete restrict,
     product_id bigint not null
         constraint fk_portfolio_products_section_id
-        references products.portfolio_products
+        references products.products
         on delete restrict,
     constraint pk_portfolio_products primary key (request_id, product_id)
 );
 
-CREATE TABLE IF NOT EXISTS profiles.request_chats
+CREATE INDEX IF NOT EXISTS idx_request_products_product_id
+    ON crm.request_products (product_id);
+
+
+
+CREATE TABLE IF NOT EXISTS crm.request_chats
 (
     request_id bigint not null
         constraint fk_request_chats_request_id
@@ -102,3 +116,5 @@ CREATE TABLE IF NOT EXISTS profiles.request_chats
     constraint pk_request_chats primary key (request_id, chat_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_request_chats_chat_id
+    ON crm.request_chats (chat_id);
