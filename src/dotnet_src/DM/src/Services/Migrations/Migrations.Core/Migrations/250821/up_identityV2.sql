@@ -62,7 +62,7 @@ create index if not exists idx_users_email_confirmed_code
 CREATE TABLE IF NOT EXISTS identity.users_phone
 (
     user_id                   bigint      not null
-        constraint fk_users_roles_user_id
+        constraint fk_users_phone_user_id
             references identity.users
             on delete restrict
         PRIMARY KEY,

@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS chats.messages
         references chats.participants
         on delete restrict,
     reply_id       bigint
-    constraint fk_reply_id
-    references chats.messages
-    on delete restrict,
+        constraint fk_reply_id
+        references chats.messages
+        on delete restrict,
     data           text,
     created_at     timestamp with time zone default now(),
     updated_at     timestamp with time zone default now()
