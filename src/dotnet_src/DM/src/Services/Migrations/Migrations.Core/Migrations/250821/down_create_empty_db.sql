@@ -1,12 +1,12 @@
 
 -- crm
 
-DROP TABLE IF EXISTS reference.request_brands;
-DROP TABLE IF EXISTS reference.request_sections;
-DROP TABLE IF EXISTS profiles.request_files;
+DROP TABLE IF EXISTS crm.request_brands;
+DROP TABLE IF EXISTS crm.request_sections;
+DROP TABLE IF EXISTS crm.request_files;
 DROP TABLE IF EXISTS crm.request_products;
 DROP TABLE IF EXISTS crm.request_chats;
-DROP TABLE IF EXISTS reference.requests;
+DROP TABLE IF EXISTS crm.requests;
 DROP SCHEMA IF EXISTS crm;
 
 -- profiles
