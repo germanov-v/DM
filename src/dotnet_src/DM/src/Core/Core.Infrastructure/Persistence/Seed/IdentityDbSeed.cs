@@ -1,8 +1,6 @@
 using Core.Application.Abstractions;
 using Core.Application.Abstractions.BusinessLogic.Identity;
-using Core.Application.Abstractions.Handlers;
 using Core.Application.Common.Results;
-using Core.Application.Dto.Identity;
 using Core.Domain.BoundedContext.Identity.Entities;
 using Core.Domain.BoundedContext.Identity.Repositories;
 using Core.Domain.Constants;

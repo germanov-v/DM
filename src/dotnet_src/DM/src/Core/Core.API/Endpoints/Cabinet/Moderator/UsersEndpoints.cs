@@ -1,6 +1,9 @@
-using Core.Application.Abstractions.Handlers;
-using Core.Application.Dto.Identity;
+using Core.Application.Dto.Filter;
+using Core.Application.Handlers.Cabinet.Moderator.Users.Dto;
+using Core.Application.Handlers.Identity.Abstractions;
+using Core.Application.Handlers.Identity.Dto;
 using Core.Application.Options;
+using Core.Domain.BoundedContext.Identity.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -26,6 +29,19 @@ public sealed class UsersEndpoints  : BaseEndpoint
 
     }
 
+    
+    public async Task<Results<Ok<PaginatedResult<User>>, ProblemHttpResult>> Search(
+        [FromBody] PaginatedQuery<UserFilter> dto,
+        [FromServices] IIdentityHandler handler,
+        HttpContext httpContext,
+        IOptions<IdentityAuthOptions> authOption,
+        CancellationToken cancellationToken
+    )
+    {
+        throw new NotImplementedException();
+     //   return TypedResults.Ok(1L);
+    }
+    
     public async Task<Results<Ok<long>, ProblemHttpResult>> StubEndpoint(
         [FromBody] LoginEmailRequestDto dto,
         [FromServices] IIdentityHandler handler,

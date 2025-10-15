@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Abstractions\Repositories\" />
       <Folder Include="Common\" />
-      <Folder Include="BusinessLogic\Notifications\" />
+      <Folder Include="Services\Notifications\" />
       <Folder Include="Constants\" />
+      <Folder Include="Handlers\Cabinet\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Core.Application.Dto.Identity.Validators;
+namespace Core.Application.Handlers.Identity.Dto.Validators;
 
 public class LoginEmailValidator : AbstractValidator<LoginEmailRoleFingerprintRequestDto>
 {

@@ -1,5 +1,6 @@
-using Core.Application.Abstractions.Handlers;
-using Core.Application.Dto.Identity;
+
+using Core.Application.Handlers.Identity.Abstractions;
+using Core.Application.Handlers.Identity.Dto;
 using Core.Application.Options;
 using Core.Domain.Constants;
 using Microsoft.AspNetCore.Http.HttpResults;

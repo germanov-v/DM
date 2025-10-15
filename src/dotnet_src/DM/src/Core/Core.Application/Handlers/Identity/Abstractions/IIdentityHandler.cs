@@ -1,10 +1,10 @@
 using System.Net;
 using Core.Application.Abstractions.Services;
 using Core.Application.Common.Results;
-using Core.Application.Dto.Identity;
+using Core.Application.Handlers.Identity.Dto;
 using Core.Domain.BoundedContext.Identity.Entities;
 
-namespace Core.Application.Abstractions.Handlers;
+namespace Core.Application.Handlers.Identity.Abstractions;
 
 public interface IIdentityHandler : IApplicationService
 {

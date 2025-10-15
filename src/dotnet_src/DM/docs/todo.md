@@ -2,4 +2,5 @@
 
 1. Реализовать обработчик событий через типы при сохранении.
 2. Непонятно как быть DateTimeOffset и времени и нужно доработать AppDate - КОНФЛИКТ!
-3. NpgsqlDataSource - реализовать новую фичу вместо NpgsqlConnection.
+3. NpgsqlDataSource - реализовать новую фичу вместо NpgsqlConnection. 
+4. Переосмыслить тавтологию BusinessLogic !!! И конкретно к Identity

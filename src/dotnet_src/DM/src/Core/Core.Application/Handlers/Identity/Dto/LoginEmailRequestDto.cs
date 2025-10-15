@@ -1,4 +1,4 @@
-namespace Core.Application.Dto.Identity;
+namespace Core.Application.Handlers.Identity.Dto;
 
 
 // public class LoginEmailRequestDto
